@@ -1,166 +1,222 @@
-\section{Análisis del Sistema}
+\section{Arquitectura funcional final del sistema}
 
-El análisis se centra en comprender la interacción entre el usuario y el sistema para cumplir con los requisitos establecidos. Al tratarse de una aplicación de acceso libre sin persistencia de usuarios en base de datos, el modelo de interacción se simplifica, priorizando la inmediatez de uso.
+El resultado final del proyecto se materializa en una aplicación web desarrollada con \textbf{Flask}, concebida como herramienta educativa de simulación de inversión sobre datos históricos reales. La solución combina una capa de presentación basada en plantillas HTML renderizadas en servidor, una capa de lógica de aplicación en Python y una capa de persistencia orientada a soportar autenticación, historial y continuidad entre modos de uso.
 
-\subsection{Actores del Sistema}
-Se identifica un único actor principal:
-\begin{itemize}
-    \item \textbf{Usuario Inversor:} Persona interesada en practicar estrategias de inversión o consultar datos fundamentales. No requiere privilegios administrativos ni registro previo.
-\end{itemize}
+Desde el punto de vista funcional, la aplicación se estructura alrededor de cuatro bloques principales: el acceso al sistema, el modo de práctica, el modo carrera y el modo horizonte. Sobre estos bloques se apoya una capa pedagógica adicional formada por la sección de aprendizaje, el \textit{readiness quiz} y el tutor de IA opcional asociado al informe final del modo carrera.
 
-\subsection{Casos de Uso}
-Los principales casos de uso identificados se describen a continuación:
+\subsection{Estructura general de la aplicación}
+
+La arquitectura implementada mantiene una separación clara entre responsabilidades:
 
 \begin{itemize}
-    \item \textbf{CU-01 Consultar Empresa:} El usuario introduce un \textit{ticker} (ej. AAPL) y el sistema devuelve su cotización actual, datos fundamentales y gráficos históricos.
-    \item \textbf{CU-02 Iniciar Simulación (Modo Carrera):} El usuario configura una nueva partida definiendo capital inicial, dificultad y horizonte temporal.
-    \item \textbf{CU-03 Avanzar Turno:} Dentro de la simulación, el usuario decide qué activos comprar o vender y solicita avanzar al siguiente periodo. El sistema calcula los rendimientos y genera eventos aleatorios.
-    \item \textbf{CU-04 Comparar con Benchmark:} El sistema superpone la rentabilidad de la cartera del usuario con la del índice S\&P 500.
+    \item \textbf{Capa de presentación:} construida mediante plantillas \texttt{Jinja2}, hojas de estilo CSS personalizadas y componentes de interacción en JavaScript. Esta capa se encarga de la representación de pantallas, formularios, tablas y gráficos.
+    \item \textbf{Capa de control:} desarrollada en Flask mediante rutas y \textit{blueprints}. Gestiona el enrutamiento HTTP, la validación de entradas, la composición de respuestas HTML y JSON y la coordinación entre usuario, sesión y servicios de dominio.
+    \item \textbf{Capa de lógica de negocio:} concentra la simulación financiera, la gestión del modo carrera, la generación de métricas comparativas, la construcción del informe final y la preparación de escenarios experimentales en el modo horizonte.
+    \item \textbf{Capa de persistencia y servicios:} integra el acceso a PostgreSQL en Render, la autenticación por correo electrónico y contraseña, el historial de análisis, la persistencia de sesiones del modo carrera y los servicios auxiliares del sistema.
 \end{itemize}
+
+La estructura final no responde ya a un prototipo anónimo y efímero, sino a una solución web modular con diferenciación de usuarios, persistencia selectiva y validación progresiva del aprendizaje.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{figs/casos_uso.png}
-    \caption{Diagrama de Casos de Uso del sistema.}
-    \label{fig:casos_uso}
+    \includegraphics[width=0.84\textwidth]{figs/arquitectura.png}
+    \caption{Arquitectura de alto nivel de la aplicación en su estado final.}
+    \label{fig:arquitectura_final}
 \end{figure}
 
-\subsection{Especificación de Casos de Uso Extendidos}
+\subsection{Módulos principales}
 
-Para detallar la lógica de negocio, se presenta la especificación completa del caso de uso más crítico del sistema: la gestión del avance de turno en el simulador.
+Los módulos funcionales que articulan la aplicación son los siguientes:
+
+\begin{itemize}
+    \item \textbf{Inicio y acceso al sistema:} ofrece entrada mediante autenticación, registro o modo invitado.
+    \item \textbf{Aprender:} presenta contenidos introductorios, explica la lógica del simulador y sirve de antesala pedagógica al cuestionario de preparación.
+    \item \textbf{Readiness quiz:} evalúa conocimientos mínimos y actúa como mecanismo de desbloqueo del modo carrera.
+    \item \textbf{Modo Práctica:} permite realizar análisis puntuales de empresas y comparar resultados con referencias de mercado.
+    \item \textbf{Modo Carrera:} organiza una experiencia de simulación por turnos, con persistencia, informe final y continuidad pedagógica.
+    \item \textbf{Modo Horizonte:} genera una proyección experimental basada en patrones históricos, con advertencias explícitas y sin carácter predictivo.
+    \item \textbf{Tutor IA:} aporta una capa opcional de análisis educativo sobre el informe final del modo carrera.
+\end{itemize}
+
+\section{Gestión de usuarios y persistencia}
+
+Una de las transformaciones más relevantes del proyecto durante su evolución fue el paso desde una experiencia esencialmente anónima a un modelo mixto que distingue entre \textbf{usuario registrado} y \textbf{usuario invitado}. Esta distinción afecta de manera directa a la persistencia del historial, la continuidad entre sesiones y el acceso a determinadas funcionalidades.
+
+\subsection{Autenticación por correo electrónico}
+
+Se implementó un flujo de autenticación basado en correo electrónico y contraseña. La aplicación permite registrar cuentas, iniciar sesión, cerrar sesión y mantener el estado autenticado mediante la sesión de Flask. El almacenamiento de credenciales se realiza de forma segura mediante funciones de \textit{hash} de contraseña, evitando el almacenamiento en texto plano.
+
+Este modelo de acceso resuelve una limitación importante de las primeras versiones del sistema, en las que el uso sin identidad impedía conservar el historial y dificultaba la continuidad real de aprendizaje entre distintas visitas.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.78\textwidth]{figs/login_final.png}
+    \caption{Pantalla de acceso tras la integración de autenticación por correo y el rediseño visual final.}
+    \label{fig:login_final}
+\end{figure}
+
+\subsection{Usuario autenticado frente a usuario invitado}
+
+El sistema final diferencia dos formas principales de uso:
+
+\begin{itemize}
+    \item \textbf{Usuario autenticado:} dispone de historial persistente, continuidad de progreso, conservación del aprobado del cuestionario y acceso estable a las sesiones del modo carrera.
+    \item \textbf{Usuario invitado:} puede explorar la aplicación sin crear cuenta, pero no conserva historial persistente entre sesiones y su uso queda acotado a una experiencia más limitada.
+\end{itemize}
+
+Esta separación resultó especialmente importante desde el punto de vista de producto, ya que permitió mantener una barrera de entrada baja sin renunciar a una capa real de continuidad para el usuario que decide implicarse más en la simulación.
+
+\subsection{Persistencia con PostgreSQL en Render}
+
+La persistencia final del sistema se apoya en una base de datos \textbf{PostgreSQL} desplegada en Render. Sobre ella se almacenan los elementos críticos de continuidad del sistema: usuarios, historial de análisis, resultados del \textit{readiness quiz} y sesiones persistentes del modo carrera.
+
+La capa de acceso se implementó mediante \textbf{Peewee}, lo que permitió mantener un modelo de datos ligero pero suficiente para el alcance del TFG. La decisión de utilizar PostgreSQL en producción sustituyó las limitaciones de un enfoque puramente efímero y permitió validar el producto en condiciones más cercanas a un despliegue real.
+
+Durante la fase final del proyecto se produjo además la expiración de una base de datos previa en Render. La creación de una nueva instancia y su integración satisfactoria en el sistema formó parte de la estabilización final del producto, validándose posteriormente el flujo de autenticación, la persistencia del historial y la navegación con usuario real.
+
+\subsection{Historial y continuidad funcional}
+
+El historial persistente quedó reservado al usuario autenticado. Esta decisión se mantuvo de forma coherente en todo el sistema:
+
+\begin{itemize}
+    \item los análisis del modo práctica se asocian al usuario autenticado;
+    \item las sesiones y turnos del modo carrera pueden recuperarse en visitas posteriores;
+    \item el resultado del cuestionario de preparación puede conservarse en la cuenta;
+    \item el modo invitado mantiene una experiencia funcional, pero sin promesa de persistencia estable.
+\end{itemize}
+
+\section{Flujo de acceso y progresión educativa}
+
+La aplicación no se diseñó únicamente como una herramienta de consulta financiera, sino como un entorno de aprendizaje progresivo. Por ello, la navegación final se articula alrededor de una secuencia de acceso, comprensión y simulación.
+
+\subsection{Inicio, registro y login}
+
+La página principal resume el sistema, sus modos de uso y las vías de acceso disponibles. Desde ella se puede continuar mediante registro, inicio de sesión o uso como invitado, dependiendo del perfil de usuario.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.82\textwidth]{figs/home_final.png}
+    \caption{Pantalla principal final del sistema tras la consolidación del rediseño frontend.}
+    \label{fig:home_final}
+\end{figure}
+
+La combinación entre identidad visual renovada y claridad de acceso ayudó a convertir la página de inicio en un punto de entrada coherente con el resto del producto.
+
+\subsection{Aprender y readiness quiz}
+
+La sección \textit{Aprender} cumple una doble función. Por una parte, introduce conceptos básicos y contextualiza el uso del simulador; por otra, actúa como soporte previo al \textit{readiness quiz}, concebido como mecanismo de desbloqueo progresivo del modo carrera.
+
+Este cuestionario evita que el acceso al modo más complejo de la aplicación se produzca sin una base mínima de comprensión, reforzando el carácter pedagógico del sistema.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/aprender_final.png}
+    \caption{Pantalla \textit{Aprender}, diseñada como apoyo pedagógico al cuestionario de preparación y al acceso progresivo al modo carrera.}
+    \label{fig:aprender_final}
+\end{figure}
+
+\subsection{Desbloqueo progresivo del modo carrera}
+
+El modo carrera se mantuvo como bloque funcional diferenciado y de mayor exigencia. Su desbloqueo condicionado por el cuestionario permitió reforzar la coherencia entre teoría y práctica, y ofreció una transición más razonable entre una exploración inicial y una experiencia de simulación prolongada.
+
+\section{Módulos principales del sistema}
+
+\subsection{Modo Práctica o Nuevo análisis}
+
+El modo práctica constituye la puerta de entrada funcional más directa al sistema. Permite seleccionar un activo, configurar parámetros de análisis y obtener una visualización histórica junto con métricas comparativas. Durante el desarrollo final se mantuvo intacta la lógica de cálculo, pero se reorganizó la experiencia como un flujo guiado con pasos más legibles y consistentes.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/practica_final.png}
+    \caption{Modo práctica rediseñado como flujo guiado de análisis sin alterar la lógica funcional del simulador.}
+    \label{fig:practica_final}
+\end{figure}
+
+Este modo cumple una función clave: familiariza al usuario con el lenguaje de la aplicación antes de avanzar hacia dinámicas más complejas.
+
+\subsection{Modo Carrera}
+
+El modo carrera organiza una simulación por turnos en la que el usuario configura una sesión, ajusta su cartera a lo largo del tiempo y recibe un informe final. A nivel técnico, este módulo fue uno de los más exigentes del proyecto, ya que combinó persistencia, generación de eventos, cálculos comparativos, continuidad temporal y tratamiento visual de estados muy diversos.
+
+La evolución del sistema llevó este modo desde una versión inicial funcional pero limitada hasta una experiencia más madura, con mejor jerarquía visual, persistencia profunda y recuperación estable de sesiones guardadas.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.82\textwidth]{figs/carrera_setup_final.png}
+    \caption{Pantalla de configuración del modo carrera tras su rediseño visual y estabilización funcional.}
+    \label{fig:carrera_setup_final}
+\end{figure}
+
+\subsection{Modo Horizonte}
+
+El modo horizonte se incorporó como extensión experimental del ecosistema de simulación. Su finalidad no es predecir el mercado, sino construir un escenario hipotético a partir de patrones históricos. Por ello, se integró con advertencias explícitas, mensajes prudentes y una jerarquía visual que subraya su naturaleza educativa y no predictiva.
+
+Este módulo también se diseñó para poder continuar desde el contexto final del modo carrera, transportando la información necesaria para mantener continuidad conceptual entre ambos modos.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.82\textwidth]{figs/horizonte_final.png}
+    \caption{Modo horizonte como herramienta experimental de proyección educativa, sin carácter predictivo ni función de asesoramiento financiero.}
+    \label{fig:horizonte_final}
+\end{figure}
+
+\subsection{Tutor IA}
+
+Sobre el informe final del modo carrera se añadió un tutor de IA opcional. Su función no consiste en recomendar compras o ventas reales, sino en analizar de forma educativa la simulación realizada y ayudar a interpretar decisiones, resultados y riesgos observados durante la partida.
+
+La integración de este componente se diseñó bajo restricciones claras: uso opcional, dependencia de clave de entorno, control de tiempos de respuesta y salida prudente, evitando que el sistema pudiera interpretarse como una herramienta de asesoramiento financiero automático.
+
+\section{Rediseño frontend por fases}
+
+\subsection{Motivación del rediseño}
+
+A medida que el proyecto fue creciendo en funcionalidades, la interfaz original empezó a mostrar síntomas claros de fragmentación: exceso de bloques heterogéneos, jerarquía visual débil, textos redundantes, formularios poco consistentes y pantallas que no siempre parecían pertenecer al mismo producto. Esto justificó la apertura de un rediseño visual por fases, realizado sin reescribir la lógica funcional ya estabilizada.
+
+Los criterios de trabajo se centraron en mejorar la jerarquía visual, reducir texto innecesario, unificar botones y formularios, reforzar el comportamiento \textit{responsive} y clarificar la diferencia entre explicación pedagógica y herramienta operativa.
+
+\subsection{Sistema visual base}
+
+La primera fase del rediseño estableció un sistema visual común: paleta cromática, superficies, tipografía, botones, tarjetas, formularios, espaciado y comportamiento general de los estados principales. Esta base permitió que las fases posteriores pudieran trabajar sobre pantallas concretas sin abrir un rediseño arbitrario de cada módulo.
+
+\subsection{Fases del rediseño}
+
+La evolución del frontend se organizó en siete fases principales, resumidas en la Tabla~\ref{tab:rediseno_fases}.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|p{0.3\textwidth}|p{0.65\textwidth}|}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{0.1\textwidth}|p{0.28\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|}
 \hline
-\textbf{Caso de Uso} & \textbf{CU-03: Avanzar Turno} \\ \hline
-\textbf{Actor} & Usuario Inversor \\ \hline
-\textbf{Precondiciones} & El usuario tiene una sesión de juego activa y no ha agotado el número máximo de turnos. \\ \hline
-\textbf{Flujo Principal} & 
-1. El usuario ajusta la distribución de su cartera (compras/ventas). \newline
-2. El usuario pulsa "Finalizar Turno". \newline
-3. El sistema valida que la suma de pesos de la cartera no exceda el 100\%. \newline
-4. El sistema descarga los datos históricos del periodo correspondiente. \newline
-5. El sistema calcula el rendimiento de la cartera y aplica eventos aleatorios (si proceden). \newline
-6. El sistema actualiza el capital acumulado y devuelve el resumen del turno. \\ \hline
-\textbf{Postcondiciones} & La fecha de la simulación avanza al siguiente periodo y se actualiza el valor patrimonial del usuario. \\ \hline
-\textbf{Excepciones} & Si no hay datos históricos para un activo en el periodo seleccionado, el sistema notifica el error y no permite avanzar hasta corregir la cartera. \\ \hline
+\textbf{Fase} & \textbf{Pantallas / alcance} & \textbf{Objetivo principal} & \textbf{Resultado} \\ \hline
+1 & Sistema visual base & Unificar tokens, superficies, tipografía y controles & Base estética coherente para el resto del producto \\ \hline
+2 & Home, login, registro y navbar & Mejorar la primera impresión y la entrada al sistema & Acceso más claro y coherencia global inicial \\ \hline
+3 & Aprender y readiness quiz & Reforzar la capa pedagógica y la progresión & Relación más clara entre teoría y simulación \\ \hline
+4 & Modo práctica / nuevo análisis & Convertir el análisis en flujo guiado & Mejor legibilidad sin alterar la lógica del simulador \\ \hline
+5 & Modo carrera & Elevar visualmente el modo más complejo & Mejor jerarquía de sesión, setup, informe y tablas \\ \hline
+6 & Modo horizonte & Integrar el módulo experimental en el sistema visual & Experiencia prudente y coherente con el producto \\ \hline
+7 & Revisión global final & Corregir incoherencias residuales y responsive & Cierre visual homogéneo del frontend \\ \hline
 \end{tabular}
-\caption{Especificación extendida del caso de uso "Avanzar Turno".}
-\label{tab:cu_avanzar}
+\caption{Resumen de las fases del rediseño frontend ejecutadas durante el proyecto.}
+\label{tab:rediseno_fases}
 \end{table}
 
-\section{Diseño del Sistema}
+\subsection{Consolidación final del frontend}
 
-Para satisfacer los requisitos funcionales y no funcionales, se ha optado por una arquitectura web basada en el patrón \textbf{Modelo-Vista-Controlador (MVC)} \cite{fowler_mvc}, adaptada al \textit{microframework} Flask.
+Una vez validadas las distintas fases sobre la rama de vista previa, el rediseño se consolidó finalmente en la rama principal \texttt{main}. Esta consolidación quedó acompañada por un etiquetado final del hito visual mediante el tag \texttt{v1.1-frontend-redesign}, que actúa como referencia del cierre del rediseño.
 
-\subsection{Arquitectura de Software}
-La aplicación se estructura en capas lógicas claramente diferenciadas para facilitar el mantenimiento y la escalabilidad:
+\section{Metodología asistida con Cocoliso/OpenClaw}
 
+Durante la evolución del proyecto se empleó un agente de asistencia al desarrollo, integrado mediante OpenClaw y utilizado bajo supervisión humana continua. Esta metodología no sustituyó la autoría técnica del trabajo, sino que sirvió como apoyo para organizar iteraciones, documentar cambios, revisar consistencia visual, proponer diagnósticos y acelerar tareas repetitivas de validación.
+
+El flujo de trabajo se estructuró de forma iterativa sobre ramas específicas, con revisión humana de resultados y validación real sobre Render antes de consolidar cambios relevantes. Entre las ramas utilizadas destacaron la rama principal \texttt{main}, la rama de vista previa \texttt{bot/render-preview}, la rama de trabajo del rediseño \texttt{feature/frontend-redesign-v2} y la rama de congelación previa \texttt{stable/pre-redesign}.
+
+Esta metodología permitió:
 \begin{itemize}
-    \item \textbf{Capa de Presentación (Vista):} Responsable de la interfaz de usuario. Implementada mediante plantillas HTML5 renderizadas con \textbf{Jinja2} \cite{jinja2}, estilos CSS3 personalizados (diseño \textit{responsive}) y gráficos interactivos generados con la librería \textbf{Chart.js} \cite{chartjs}.
-    
-    \item \textbf{Capa de Control (Controlador):} Gestiona la lógica de la aplicación y el enrutamiento HTTP. Se ha implementado en Python utilizando \textbf{Flask Blueprints} \cite{flask} para modularizar el código:
-    \begin{itemize}
-        \item \texttt{routes.py}: Maneja las rutas generales y la consulta de datos públicos.
-        \item \texttt{career.py}: Encapsula toda la lógica compleja del simulador ("Modo Carrera"), incluyendo la máquina de estados de la simulación y el generador de eventos.
-    \end{itemize}
-    
-    \item \textbf{Capa de Datos y Servicios (Modelo):} 
-    \begin{itemize}
-        \item \textbf{Proveedor de Datos:} Integración con la API de \textbf{Yahoo Finance} (vía librería \texttt{yfinance}) para la obtención de series temporales en tiempo real.
-        \item \textbf{Almacenamiento:} Debido a la naturaleza anónima de la aplicación, la persistencia es efímera o basada en archivos JSON estáticos (\texttt{empresas.json}) para catálogos, delegando el estado de la sesión al navegador del cliente o memoria temporal.
-    \end{itemize}
+    \item trabajar con cambios pequeños y trazables;
+    \item documentar cada iteración importante;
+    \item validar visualmente sobre entorno desplegado;
+    \item separar trabajo experimental de la versión estable;
+    \item corregir incidencias reales sin interrumpir el desarrollo completo del sistema.
 \end{itemize}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figs/arquitectura.png}
-    \caption{Arquitectura de alto nivel de la aplicación.}
-    \label{fig:arquitectura}
-\end{figure}
-
-\subsection{Modelo de Datos}
-
-A diferencia de las aplicaciones tradicionales basadas en SQL, este sistema utiliza una estructura de datos documental (JSON) para gestionar el estado de la sesión de juego en memoria. Esto permite una mayor flexibilidad al evolucionar la lógica del juego. A continuación se describe la estructura principal del objeto \texttt{Session}:
-
-\begin{itemize}
-    \item \texttt{session\_id}: Identificador único de la partida.
-    \item \texttt{config}: Parámetros de dificultad (inversión inicial, volatilidad de eventos).
-    \item \texttt{turns}: Lista de objetos que representan el historial de cada turno (fecha, asignación de activos, rendimiento obtenido, eventos sufridos).
-    \item \texttt{portfolio}: Estado actual de la cartera (tickers y pesos).
-\end{itemize}
-
-\subsection{Diseño de la Interfaz (UI/UX)}
-El diseño visual prioriza la claridad de los datos financieros. Se ha implementado un sistema de \textit{grids} CSS y \textit{Media Queries} para asegurar que las tablas de datos y los gráficos se adapten fluidamente a pantallas móviles, cumpliendo el requisito RNF-03. Los gráficos de Chart.js se han configurado para ser reactivos al redimensionamiento de la ventana.
-
-\section{Implementación}
-
-La implementación del sistema se ha llevado a cabo siguiendo las especificaciones de diseño, priorizando la modularidad y el uso de librerías estándar de la industria. A continuación, se detallan los componentes más relevantes del desarrollo.
-
-\subsection{Motor de Simulación Financiera}
-El núcleo de la aplicación reside en el módulo \texttt{career.py}, encargado de gestionar la lógica del "Modo Carrera". Este módulo implementa una máquina de estados que procesa los turnos de simulación.
-
-Para garantizar la consistencia de los datos históricos, se ha implementado una función robusta de extracción de datos que gestiona la conexión con la API de Yahoo Finance. El siguiente fragmento muestra cómo se procesan y normalizan los precios ajustados, incluyendo la optimización de memoria implementada:
-
-\begin{lstlisting}[language=Python, caption=Extracto de la función de normalización de precios en career.py]
-def _build_normalized_series_map(tickers, start, end):
-    series_map = {}
-    # Separamos activos normales de la liquidez (CASH)
-    non_cash = [t for t in tickers if not _is_cash(t)]
-    
-    for ticker in non_cash:
-        # Descarga y normalizacion base 100
-        data = _fetch_adj_close(ticker, start, end)
-        
-        # Limpieza explicita de memoria tras descarga
-        gc.collect() 
-        
-        if data:
-            series_map[ticker] = _normalize_base100(data)
-            
-    return series_map
-\end{lstlisting}
-
-El sistema normaliza todas las series temporales a una "Base 100" al inicio del periodo de inversión, lo que facilita la comparación visual entre activos de precios muy dispares (por ejemplo, comparar una acción de 150\$ con una de 2.000\$).
-
-\subsection{Gestión de Eventos Aleatorios}
-Uno de los requisitos funcionales clave (RF-04) es la generación de eventos que alteren el mercado. Se ha implementado un sistema de "baraja de cartas" ponderada según la dificultad elegida por el usuario.
-
-El algoritmo decide en cada turno si ocurre un evento (positivo o negativo) basándose en probabilidades predefinidas. La estructura de datos para un evento típico se define en un diccionario extensible:
-
-\begin{lstlisting}[language=Python, caption=Definición de un evento macroeconómico negativo]
-{
-    "id": "macro_inflation_shock",
-    "name": "Shock inflacionario inesperado",
-    "scope": "portfolio",  # Afecta a toda la cartera
-    "impact_pct": -0.085,  # Impacto del -8.5%
-    "remaining_turns": 3,  # Duracion del efecto
-    "difficulty_label": "hard"
-}
-\end{lstlisting}
-
-\subsection{Controlador y Rutas (API)}
-El archivo \texttt{routes.py} actúa como el controlador principal, exponiendo los puntos de entrada (\textit{endpoints}) de la aplicación. Se ha utilizado el patrón \textit{Blueprint} de Flask para organizar las rutas.
-
-Destaca la implementación del \textit{endpoint} de análisis, que realiza validaciones de entrada estrictas antes de procesar cualquier simulación, asegurando que parámetros como el "horizonte temporal" o el "aporte mensual" (DCA) sean coherentes:
-
-\begin{lstlisting}[language=Python, caption=Validación de parámetros en el controlador]
-@bp.post("/analisis")
-def crear_analisis():
-    datos_brutos = request.get_json(silent=True) or {}
-    # Normalizacion y saneamiento de entrada
-    datos = _normalizar_payload(datos_brutos)
-    # Validacion de reglas de negocio
-    errores = _validar_payload(datos)
-    
-    if errores:
-        return jsonify({"valido": False, "errores": errores}), 400
-        
-    return _registrar_analisis(datos)
-\end{lstlisting}
-
-\subsection{Interfaz de Usuario (Frontend)}
-La interfaz se ha construido utilizando HTML5 semántico y CSS3 moderno. Para la visualización de datos, se ha integrado la librería \textbf{Chart.js} \cite{chartjs}, que renderiza los gráficos financieros en el lado del cliente (navegador) a partir de los datos JSON servidos por el backend.
-
-Para cumplir con el requisito de diseño responsivo (RNF-03), se han utilizado \textit{Media Queries} y unidades relativas (como \texttt{clamp()}), permitiendo que la navegación y las tablas de datos se adapten fluidamente a dispositivos móviles sin perder legibilidad.
+Desde una perspectiva académica, el uso del agente puede interpretarse como una forma de desarrollo asistido y supervisado, análoga a otras herramientas modernas de apoyo a la ingeniería del software, siempre subordinada a la decisión y validación humana.
