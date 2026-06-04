@@ -1,39 +1,48 @@
-% Contenidos del capítulo.
-% Las secciones presentadas son orientativas y no representan
-% necesariamente la organización que debe tener este capítulo.
 \section{Conclusiones}
 
-El desarrollo de este Trabajo de Fin de Grado ha permitido alcanzar satisfactoriamente el objetivo principal: el diseño e implementación de una plataforma web funcional para el análisis y simulación de inversiones financieras.
+El desarrollo de este Trabajo de Fin de Grado ha culminado en una aplicación web funcional para el análisis y la simulación educativa de inversiones, desplegada en entorno real y validada tanto desde el punto de vista técnico como visual. El resultado final no se limita a una demostración conceptual, sino que incorpora autenticación, persistencia, varios modos de uso y una experiencia de interfaz unificada tras un rediseño completo por fases.
 
-Tras completar el ciclo de desarrollo, se extraen las siguientes conclusiones principales:
+Entre las principales conclusiones del proyecto pueden destacarse las siguientes:
 
 \begin{itemize}
-    \item \textbf{Cumplimiento de Objetivos:} Se ha logrado automatizar la extracción de datos financieros reales y construir un "Modo Carrera" jugable que cumple con la función pedagógica planteada. La aplicación permite simular estrategias como el DCA en periodos históricos reales, ofreciendo un valor diferencial respecto a otros simuladores estáticos.
-    
-    \item \textbf{Robustez Técnica:} La integración de prácticas de Ingeniería de Software modernas, específicamente el pipeline de CI/CD con GitHub Actions \cite{github_actions} y el despliegue automático en Render \cite{render}, ha sido determinante. Esto ha permitido detectar errores de regresión de forma temprana y asegurar que la versión en producción siempre sea estable.
-    
-    \item \textbf{Eficiencia en el Uso de Recursos:} Uno de los mayores desafíos superados ha sido la optimización del sistema para operar bajo las estrictas limitaciones de memoria del nivel gratuito de la nube. La implementación de caché inteligente y gestión de memoria explícita demuestra que es posible desplegar aplicaciones de análisis de datos complejas con costes de infraestructura nulos.
-    
-    \item \textbf{Experiencia de Usuario:} Las pruebas funcionales han validado que la interfaz es capaz de presentar gran cantidad de datos (gráficos, tablas) de forma legible en dispositivos móviles, superando uno de los retos de diseño más habituales en aplicaciones financieras.
+    \item \textbf{Cumplimiento de objetivos funcionales:} se ha desarrollado una herramienta capaz de combinar análisis histórico, simulación progresiva y apoyo pedagógico. El sistema integra un modo práctica, un modo carrera, un modo horizonte de carácter experimental y un tutor de IA opcional asociado al informe final.
+
+    \item \textbf{Evolución desde prototipo a sistema más maduro:} el proyecto comenzó con una base funcional más simple y terminó incorporando autenticación por correo, distinción entre usuario invitado y registrado, historial persistente y sesiones del modo carrera almacenadas en PostgreSQL.
+
+    \item \textbf{Refuerzo de la dimensión educativa:} la incorporación de la sección de aprendizaje, el \textit{readiness quiz} y el desbloqueo progresivo del modo carrera permitió alinear mejor la herramienta con una finalidad formativa y no meramente demostrativa.
+
+    \item \textbf{Cierre visual y experiencial del producto:} el rediseño frontend por fases permitió mejorar jerarquía visual, consistencia entre pantallas, claridad de formularios y comportamiento responsive, dando como resultado una experiencia más coherente y defendible académicamente.
+
+    \item \textbf{Validación técnica y operativa razonable:} el sistema quedó respaldado por validaciones locales repetibles, integración continua mediante GitHub Actions, despliegue estable en Render y una batería final de \textbf{29 pruebas superadas}. Asimismo, se resolvió un hotfix final relacionado con el estado autenticado de la navbar, lo que refuerza la trazabilidad del proceso de estabilización.
 \end{itemize}
 
-\section{Trabajo Futuro}
+En conjunto, el proyecto demuestra que es posible construir, dentro del marco de un TFG, una aplicación web con valor pedagógico real, apoyo en datos históricos, despliegue operativo y un grado de madurez superior al de un prototipo meramente académico.
 
-A pesar de que el sistema es funcional y cumple los requisitos iniciales, el desarrollo ha abierto nuevas vías de mejora y expansión. Si se dispusiera de más tiempo y recursos, se proponen las siguientes líneas de trabajo futuro:
+\section{Trabajo futuro}
 
-\subsection{Mejoras Técnicas}
+Aunque el sistema final alcanzado cubre de forma satisfactoria los objetivos principales del proyecto, siguen existiendo líneas de mejora realistas y coherentes para futuras iteraciones:
+
+\subsection{Mejoras técnicas}
 \begin{itemize}
-    \item \textbf{Persistencia de Usuarios:} Implementar una base de datos relacional como PostgreSQL \cite{postgresql} para permitir el registro de usuarios, guardar historiales de partidas y crear un ranking global de jugadores.
-    \item \textbf{Ampliación de Mercados:} Integrar APIs adicionales para incluir criptomonedas, materias primas o mercados europeos, ya que actualmente la herramienta se centra en el mercado estadounidense (S\&P 500).
+    \item \textbf{Pruebas end-to-end:} incorporar una capa adicional de pruebas E2E con herramientas como Playwright o equivalentes para automatizar escenarios completos de navegación, autenticación y validación visual.
+    \item \textbf{Accesibilidad avanzada:} profundizar en contraste, navegación por teclado, ayudas semánticas y revisión sistemática de accesibilidad para asegurar una experiencia más inclusiva.
+    \item \textbf{Monitorización y observabilidad:} añadir mecanismos de monitorización del despliegue, alertas y trazas que faciliten el diagnóstico en producción.
+    \item \textbf{Despliegue sobre infraestructura no gratuita:} migrar a una solución con menos restricciones de expiración, memoria o disponibilidad para reducir la fragilidad asociada a los planes gratuitos.
+    \item \textbf{Seguridad y gestión de usuarios:} ampliar las capacidades de recuperación de cuenta, endurecimiento de sesiones y gestión de credenciales si el proyecto evolucionara hacia un producto más abierto al público.
 \end{itemize}
 
-\subsection{Mejoras Funcionales}
+\subsection{Mejoras funcionales y pedagógicas}
 \begin{itemize}
-    \item \textbf{Inteligencia Artificial:} Desarrollar un módulo de IA que actúe como "asesor virtual", analizando la cartera del usuario y sugiriendo movimientos basados en patrones históricos o métricas de riesgo.
-    \item \textbf{Modo Multijugador:} Implementar competiciones en tiempo real donde varios usuarios gestionen carteras simultáneamente bajo las mismas condiciones de mercado.
+    \item \textbf{Más contenidos educativos:} ampliar la sección \textit{Aprender} con materiales adicionales, ejemplos comparativos y recorridos temáticos.
+    \item \textbf{Analítica educativa más profunda:} ofrecer métricas que ayuden a interpretar no solo el resultado financiero, sino también los patrones de decisión del usuario.
+    \item \textbf{Nuevos escenarios de simulación:} extender el conjunto de activos, mercados o situaciones históricas disponibles para enriquecer el valor formativo del simulador.
+    \item \textbf{Exportación e informes más completos:} mejorar la calidad y variedad de las salidas exportables, tanto para el historial como para el informe final del modo carrera.
 \end{itemize}
 
-\section{Conclusión Personal}
-La realización de este proyecto ha supuesto un reto integrador que ha permitido consolidar competencias adquiridas durante el grado, desde la programación \textit{backend} con Python \cite{python} hasta la gestión de proyectos ágiles. 
+Estas líneas de trabajo futuro se consideran razonables porque no duplican funcionalidades ya implementadas, sino que amplían capacidades reales sobre una base ya consolidada.
 
-En particular, el proceso de llevar la aplicación a un entorno de producción real ha aportado lecciones valiosas sobre la importancia de la optimización y la gestión de recursos limitados. Más allá del resultado técnico, el proyecto ha servido para profundizar en la intersección entre la tecnología y las finanzas, un sector con gran proyección profesional.
+\section{Conclusión personal}
+
+La realización del proyecto ha permitido integrar competencias de desarrollo web, gestión de datos, despliegue en la nube, validación técnica y diseño de interacción en un único sistema. Más allá del resultado funcional, el proceso ha puesto de manifiesto la importancia de iterar, validar sobre entorno real y documentar adecuadamente las decisiones adoptadas.
+
+Asimismo, el proyecto ha servido para comprobar que la calidad final de una aplicación no depende únicamente de su lógica interna, sino también de la coherencia de la interfaz, de la estabilidad del despliegue y de la capacidad de corregir incidencias reales detectadas durante la validación final.

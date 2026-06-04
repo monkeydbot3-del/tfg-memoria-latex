@@ -1,161 +1,145 @@
 \chapter{Manual Técnico y Despliegue}
 \label{appendix:manual}
 
-\section{Estructura del Proyecto}
-El código fuente de la aplicación se organiza siguiendo el patrón de diseño de Flask \cite{flask}. A continuación se muestra la estructura de directorios principal y la función de cada módulo:
+\section{Estructura del proyecto}
+
+La aplicación principal se desarrolló en un repositorio independiente del repositorio de la memoria. Su estructura final responde a una organización típica de Flask, ampliada con servicios de autenticación, persistencia y validación técnica.
 
 \begin{verbatim}
-/tfg-web-ci-python
-|-- .github/            # Flujos de CI/CD (GitHub Actions)
+/tfg-simulador-inversion
+|-- .github/            # Flujos de validacion (GitHub Actions)
 |-- app/
-|   |-- data/           # Datos estáticos (JSON)
-|   |-- static/         # CSS, JS e imágenes
+|   |-- static/         # CSS, JS e imagenes
 |   |-- templates/      # Plantillas HTML (Jinja2)
-|   |-- __init__.py     # Factoría de la aplicación
-|   |-- career.py       # Lógica del "Modo Carrera"
-|   `-- routes.py       # Controlador (Rutas)
-|-- tests/              # Tests unitarios (pytest)
-|-- requirements.txt    # Dependencias
-`-- run.py              # Entry point
+|   |-- services/       # Servicios de auth, historial y carrera
+|   |-- __init__.py     # Factoria de la aplicacion
+|   |-- auth.py         # Login, registro, invitado y logout
+|   |-- career.py       # Logica del modo carrera
+|   |-- db.py           # Inicializacion de base de datos
+|   |-- models.py       # Modelos persistentes
+|   `-- routes.py       # Rutas principales y API interna
+|-- tests/              # Suite de pruebas automatizadas
+|-- requirements.txt    # Dependencias del proyecto
+`-- run.py              # Punto de entrada
 \end{verbatim}
 
-\section{Instalación Local}
-Para ejecutar el entorno de desarrollo se requieren Python 3.11+ \cite{python} y Git \cite{progit}.
+\section{Ramas y versionado}
+
+Durante la fase final del proyecto se utilizaron varias ramas con propósitos diferenciados:
+
+\begin{itemize}
+    \item \texttt{main}: versión principal consolidada del sistema.
+    \item \texttt{bot/render-preview}: rama de validación visual en Render durante el rediseño.
+    \item \texttt{feature/frontend-redesign-v2}: rama de trabajo del rediseño visual por fases.
+    \item \texttt{stable/pre-redesign}: rama de congelación funcional previa al rediseño completo.
+\end{itemize}
+
+Como hito de cierre del rediseño se creó el tag:
+\begin{center}
+\texttt{v1.1-frontend-redesign}
+\end{center}
+
+\section{Instalación y ejecución local}
+
+Para ejecutar el proyecto localmente se requiere Python 3.11 o superior \cite{python}, Git \cite{progit} y un entorno con acceso a las dependencias definidas en \texttt{requirements.txt}.
 
 \begin{enumerate}
-    \item \textbf{Clonar el repositorio:}
+    \item \textbf{Clonar el repositorio principal:}
     \begin{verbatim}
-    git clone https://github.com/sanlaja/tfg-web-ci-python.git
-    cd tfg-web-ci-python
+    git clone git@github.com:monkeydbot3-del/tfg-simulador-inversion.git
+    cd tfg-simulador-inversion
     \end{verbatim}
-    
-    \item \textbf{Crear un entorno virtual e instalar dependencias:}
+
+    \item \textbf{Crear entorno virtual e instalar dependencias:}
     \begin{verbatim}
     python -m venv .venv
-    # En Windows:
-    .venv\Scripts\activate
-    # En Mac/Linux:
     source .venv/bin/activate
-    
     pip install -r requirements.txt
     \end{verbatim}
-    
+
+    \item \textbf{Definir variables de entorno necesarias:}
+    \begin{verbatim}
+    export SECRET_KEY=...
+    export DATABASE_URL=...
+    # Opcional:
+    export OPENAI_API_KEY=...
+    \end{verbatim}
+
     \item \textbf{Ejecutar la aplicación:}
     \begin{verbatim}
     python run.py
     \end{verbatim}
-    El servidor estará accesible localmente en \texttt{http://localhost:5000}.
 \end{enumerate}
 
-\section{Despliegue en Render (Producción)}
+\section{Despliegue en Render}
 
-El proyecto está configurado para desplegarse automáticamente en la plataforma en la nube \textbf{Render} \cite{render} mediante integración continua.
+El despliegue final se realizó en Render \cite{render}. Durante el desarrollo, la rama de vista previa se utilizó para validar cambios del rediseño sobre el entorno desplegado, mientras que la fase final concluyó con la consolidación del sistema en \texttt{main}. El servicio quedó finalmente alineado con esta rama principal como versión oficial del proyecto.
 
-Para garantizar la estabilidad del servicio en el plan gratuito (limitado a 512 MB de RAM), ha sido necesario establecer la siguiente configuración de entorno en el servidor:
+La aplicación requiere al menos las siguientes variables de entorno:
 
 \begin{itemize}
-    \item \texttt{PYTHON\_VERSION}: \texttt{3.11.0} (o superior) para asegurar compatibilidad.
-    \item \texttt{WEB\_CONCURRENCY}: \texttt{1}. Esta variable es crítica para limitar a Gunicorn a un solo proceso \textit{worker}. Sin esta configuración, el servidor intenta instanciar múltiples procesos paralelos, agotando la memoria disponible al cargar librerías científicas como \texttt{pandas}, lo que provocaría los errores de memoria (\textit{OOM}) descritos en el capítulo de pruebas.
+    \item \texttt{SECRET\_KEY}: clave de sesión de Flask.
+    \item \texttt{DATABASE\_URL}: conexión a PostgreSQL.
+    \item \texttt{OPENAI\_API\_KEY}: variable opcional para habilitar el Tutor IA.
 \end{itemize}
 
-La versión de producción es accesible públicamente en:
-\begin{center}
-\texttt{https://tfg-web-ci-python.onrender.com}
-\end{center}
+\subsection{Base de datos PostgreSQL}
 
+La persistencia final se apoya en PostgreSQL desplegado también en Render. Durante el cierre del proyecto fue necesario recrear la base de datos tras la expiración de una instancia anterior asociada al plan gratuito. Esta incidencia obligó a revalidar autenticación, historial y navegación en el entorno real.
+
+\section{Comandos de validación técnica}
+
+Para comprobar el estado técnico del proyecto se consolidó la siguiente secuencia de validación:
+
+\begin{verbatim}
+python3 -m py_compile run.py app/__init__.py app/routes.py app/auth.py \
+app/career.py app/models.py app/services/career_session_service.py
+
+ruff check .
+black --check .
+
+SECRET_KEY=ci-secret-key DATABASE_URL=sqlite:///ci.db \
+pytest --cov=app --cov-report=xml
+\end{verbatim}
+
+Esta secuencia se utilizó tanto como validación local repetible como referencia práctica para la integración continua.
+
+\section{GitHub Actions y validación continua}
+
+La rama principal quedó respaldada por GitHub Actions, que automatiza la ejecución de validaciones sobre el repositorio y ayuda a detectar regresiones antes de consolidar cambios. Esta integración fue especialmente útil durante el rediseño frontend y en la fase de estabilización final.
+
+\section{Incidencia final de autenticación/navbar}
+
+Una de las últimas correcciones técnicas relevantes consistió en ajustar el renderizado de la barra de navegación tras login real. Aunque la sesión autenticada existía correctamente, la navbar seguía mostrando acciones propias de usuario anónimo en algunas pantallas internas. La solución consistió en dar prioridad explícita al estado autenticado frente al modo invitado, y se reforzó con pruebas automáticas sobre rutas internas.
 
 \chapter{Manual de Usuario}
 \label{appendix:manual_usuario}
 
-Este manual guía cada pantalla del simulador con explicaciones detalladas, ejemplos numéricos y referencias directas al funcionamiento del sistema. El objetivo es que, incluso sin experiencia previa, cualquier usuario pueda entender qué significa cada campo, por qué importa y dónde aparece.
+Este manual resume el flujo funcional final de la aplicación y ayuda a interpretar sus principales pantallas.
 
-\section{Introducción Rápida}
-El simulador tiene dos modos independientes:
+\section{Acceso al sistema}
 
+El sistema puede utilizarse de tres formas:
 \begin{itemize}
-    \item \textbf{Modo Práctica:} Analizas un único \textit{ticker} con tus propios supuestos.
-    \item \textbf{Modo Carrera:} Gestionas una sesión con varios turnos, eventos aleatorios y un ranking global.
+    \item como usuario autenticado;
+    \item como usuario invitado;
+    \item como visitante que todavía no ha iniciado sesión.
 \end{itemize}
 
-Flujo recomendado para principiantes:
-\begin{enumerate}
-    \item Busca un \textit{ticker} con el pre-check de Yahoo Finance.
-    \item Pruébalo en \textbf{Modo Práctica}.
-    \item Crea una sesión de \textbf{Modo Carrera} con ese universo de activos.
-    \item Respeta siempre las reglas clave: la suma de pesos no puede superar el 100\% ($\le 1.0$) y el máximo de activos es 10.
-\end{enumerate}
+El usuario autenticado dispone de persistencia y continuidad. El usuario invitado puede explorar el sistema, pero sin historial persistente estable.
 
-\section{Conceptos Básicos Imprescindibles}
-\begin{description}
-    \item[Ticker] Símbolo bursátil en mayúsculas (ej. \texttt{AAPL}).
-    \item[Benchmark] Índice de referencia para comparar tu cartera. Por defecto es el S\&P 500 (\texttt{\^{}GSPC}).
-    \item[Cartera] Lista de activos con sus pesos asignados.
-    \item[Turno] Intervalo de tiempo definido por una fecha de inicio y fin.
-    \item[SOT (Start of Turn)] Capital y pesos en el instante previo a los eventos; sirve para medir variaciones.
-    \item[DCA] Aportación automática (\textit{Dollar Cost Averaging}) que se suma al capital en cada turno.
-\end{description}
+\section{Modo Práctica}
 
-\section{Modo Práctica Paso a Paso}
-\begin{enumerate}
-    \item \textbf{Formulario:} Completa ticker, importe (ej. 1.000 €), horizonte en años y fechas.
-    \item \textbf{Validaciones:} El sistema exige importes positivos y fechas ordenadas.
-    \item \textbf{DCA:} Elige entre inversión única o aportaciones periódicas.
-    \item \textbf{Métricas:} Tras enviar, se calculan CAGR, \textit{drawdown} y PnL.
-    \item \textbf{Historial:} Puedes guardar los resultados y exportar a CSV.
-\end{enumerate}
+Permite realizar un análisis puntual de un activo y comparar su evolución con una referencia histórica. Es la forma más directa de comenzar a utilizar la aplicación.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figs/analisis_form.png}
-    \caption{Pantalla del Modo Práctica.}
-    \label{fig:modo_practica}
-\end{figure}
+\section{Modo Carrera}
 
-\section{Modo Carrera Paso a Paso}
-\begin{enumerate}
-    \item \textbf{Crear sesión:} Define dificultad, capital inicial y universo de activos.
-    \item \textbf{Asignar pesos:} El formulario valora hasta 10 activos. La suma debe ser $\le 1.0$.
-    \item \textbf{Cerrar turno:} El sistema confirma que los datos son coherentes y avanza el tiempo.
-    \item \textbf{Eventos:} Tras cerrar, aparece un resumen de eventos aleatorios (noticias, crisis).
-    \item \textbf{Drift automático:} Los pesos del siguiente turno se ajustan automáticamente según la evolución del mercado.
-    \item \textbf{Informe:} Genera un reporte final con métricas y posición en el ranking.
-\end{enumerate}
+Permite crear sesiones por turnos, configurar carteras y obtener un informe final. Su acceso queda condicionado por el readiness quiz.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figs/modo_carrera.png}
-    \caption{Interfaz principal del Modo Carrera.}
-    \label{fig:modo_carrera_ui}
-\end{figure}
+\section{Modo Horizonte}
 
-\section{Métricas y Tracking}
-El informe genera dos series comparativas en Base 100 (Cartera vs Benchmark) y calcula:
+Extiende la experiencia del simulador mediante una proyección experimental basada en patrones históricos. Su uso tiene finalidad educativa y no predictiva.
 
-\begin{itemize}
-    \item \textbf{CAGR:} Crecimiento anual compuesto.
-    \item \textbf{Max Drawdown:} Caída máxima desde el último pico.
-    \item \textbf{Volatilidad Anual:} Desviación estándar del rendimiento.
-    \item \textbf{Information Ratio:} Mide la consistencia del exceso de retorno sobre el benchmark.
-\end{itemize}
+\section{Tutor IA}
 
-\section{Glosario Completo}
-\begin{description}
-    \item[Ticker] Identificador oficial de una empresa. Ejemplo: \texttt{"MSFT"}.
-    \item[Alloc] Asignación de pesos de la cartera. Ejemplo: \texttt{[{"ticker":"AAPL","weight":0.4}]}.
-    \item[Efectivo (CASH)] Ticker especial para mantener liquidez sin invertir.
-    \item[Snapshot] Registro completo del estado de un turno.
-    \item[DCA] Estrategia de inversión constante para suavizar la entrada al mercado.
-    \item[PnL (Abs/Pct)] Beneficio o pérdida en términos absolutos (€) o relativos (\%).
-    \item[Base 100] Escala normalizada que comienza en 100 para comparar activos distintos.
-    \item[Seed] Semilla aleatoria que permite replicar exactamente una sesión de simulación.
-\end{description}
-
-\section{Preguntas Frecuentes (FAQ)}
-\textbf{¿Puedo dejar parte de la cartera en efectivo?} \\
-Sí. Usa el ticker \texttt{CASH} o deja la suma de pesos por debajo de 1.0.
-
-\textbf{¿Qué hago si un ticker no aparece?} \\
-Revisa el buscador de Yahoo Finance. Si no tiene datos históricos suficientes, el sistema lo rechazará.
-
-\textbf{¿Por qué cambian mis pesos automáticamente?} \\
-Debido al "drift" de mercado: los activos que suben de precio ganan peso relativo en la cartera automáticamente.
+Sobre el informe final del modo carrera puede habilitarse una capa adicional de análisis educativo mediante IA, siempre de forma opcional y condicionada a la variable de entorno correspondiente.
