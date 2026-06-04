@@ -204,19 +204,8 @@ La evolución del frontend se organizó en siete fases principales, resumidas en
 
 Una vez validadas las distintas fases sobre la rama de vista previa, el rediseño se consolidó finalmente en la rama principal \texttt{main}. Esta consolidación quedó acompañada por un etiquetado final del hito visual mediante el tag \texttt{v1.1-frontend-redesign}, que actúa como referencia del cierre del rediseño.
 
-\section{Metodología asistida con Cocoliso/OpenClaw}
+\section{Metodología asistida}
 
-Durante la evolución del proyecto se empleó un agente de asistencia al desarrollo, integrado mediante OpenClaw y utilizado bajo supervisión humana continua. Esta metodología no sustituyó la autoría técnica del trabajo, sino que sirvió como apoyo para organizar iteraciones, documentar cambios, revisar consistencia visual, proponer diagnósticos y acelerar tareas repetitivas de validación.
+Durante la evolución del proyecto se empleó asistencia al desarrollo integrada en el flujo de trabajo y utilizada bajo supervisión humana continua. Esta metodología no sustituyó la autoría técnica del trabajo, sino que sirvió como apoyo para organizar iteraciones, documentar cambios, revisar consistencia visual, proponer diagnósticos y acelerar tareas repetitivas de validación.
 
-El flujo de trabajo se estructuró de forma iterativa sobre ramas específicas, con revisión humana de resultados y validación real sobre Render antes de consolidar cambios relevantes. Entre las ramas utilizadas destacaron la rama principal \texttt{main}, la rama de vista previa \texttt{bot/render-preview}, la rama de trabajo del rediseño \texttt{feature/frontend-redesign-v2} y la rama de congelación previa \texttt{stable/pre-redesign}.
-
-Esta metodología permitió:
-\begin{itemize}
-    \item trabajar con cambios pequeños y trazables;
-    \item documentar cada iteración importante;
-    \item validar visualmente sobre entorno desplegado;
-    \item separar trabajo experimental de la versión estable;
-    \item corregir incidencias reales sin interrumpir el desarrollo completo del sistema.
-\end{itemize}
-
-Desde una perspectiva académica, el uso del agente puede interpretarse como una forma de desarrollo asistido y supervisado, análoga a otras herramientas modernas de apoyo a la ingeniería del software, siempre subordinada a la decisión y validación humana.
+El flujo de trabajo se estructuró de forma iterativa sobre ramas específicas, con revisión humana de resultados y validación sobre Render antes de consolidar cambios relevantes. Desde una perspectiva académica, este apoyo puede interpretarse como una forma de desarrollo asistido y supervisado, subordinada en todo momento a la decisión y validación humana.

@@ -102,7 +102,7 @@ SECRET_KEY=ci-secret-key DATABASE_URL=sqlite:///ci.db \
 pytest --cov=app --cov-report=xml
 \end{verbatim}
 
-Esta secuencia se utilizó tanto como validación local repetible como referencia práctica para la integración continua.
+Esta secuencia se utilizó como validación local repetible y como referencia práctica para la integración continua.
 
 \section{GitHub Actions y validación continua}
 
@@ -110,7 +110,7 @@ La rama principal quedó respaldada por GitHub Actions, que automatiza la ejecuc
 
 \section{Incidencia final de autenticación/navbar}
 
-Una de las últimas correcciones técnicas relevantes consistió en ajustar el renderizado de la barra de navegación tras login real. Aunque la sesión autenticada existía correctamente, la navbar seguía mostrando acciones propias de usuario anónimo en algunas pantallas internas. La solución consistió en dar prioridad explícita al estado autenticado frente al modo invitado, y se reforzó con pruebas automáticas sobre rutas internas.
+Una de las últimas correcciones técnicas relevantes consistió en ajustar el renderizado de la barra de navegación tras el inicio de sesión real. Aunque la sesión autenticada existía correctamente, la navbar seguía mostrando acciones propias de usuario anónimo en algunas pantallas internas. La solución consistió en dar prioridad explícita al estado autenticado frente al modo invitado y se reforzó con pruebas automáticas sobre rutas internas.
 
 \chapter{Manual de Usuario}
 \label{appendix:manual_usuario}
@@ -126,7 +126,7 @@ El sistema puede utilizarse de tres formas:
     \item como visitante que todavía no ha iniciado sesión.
 \end{itemize}
 
-El usuario autenticado dispone de persistencia y continuidad. El usuario invitado puede explorar el sistema, pero sin historial persistente estable.
+El usuario autenticado dispone de persistencia y continuidad. El usuario invitado puede explorar el sistema, pero sin historial persistente entre sesiones.
 
 \section{Modo Práctica}
 
