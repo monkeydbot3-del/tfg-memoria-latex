@@ -27,12 +27,14 @@ La aplicación principal se desarrolló en un repositorio independiente del repo
 
 Durante la fase final del proyecto se utilizaron varias ramas con propósitos diferenciados:
 
+{\sloppy
 \begin{itemize}
     \item \texttt{main}: versión principal consolidada del sistema.
     \item \texttt{bot/render-preview}: rama de validación visual en Render durante el rediseño.
     \item \texttt{feature/frontend-redesign-v2}: rama de trabajo del rediseño visual por fases.
     \item \texttt{stable/pre-redesign}: rama de congelación funcional previa al rediseño completo.
 \end{itemize}
+\par}
 
 Como hito de cierre del rediseño se creó el tag:
 \begin{center}
@@ -91,9 +93,11 @@ La persistencia final se apoya en PostgreSQL desplegado también en Render. Dura
 
 Para comprobar el estado técnico del proyecto se consolidó la siguiente secuencia de validación:
 
+{\small
 \begin{verbatim}
-python3 -m py_compile run.py app/__init__.py app/routes.py app/auth.py \
-app/career.py app/models.py app/services/career_session_service.py
+python3 -m py_compile run.py app/__init__.py app/routes.py \
+app/auth.py app/career.py app/models.py \
+app/services/career_session_service.py
 
 ruff check .
 black --check .
@@ -101,6 +105,7 @@ black --check .
 SECRET_KEY=ci-secret-key DATABASE_URL=sqlite:///ci.db \
 pytest --cov=app --cov-report=xml
 \end{verbatim}
+}
 
 Esta secuencia se utilizó como validación local repetible y como referencia práctica para la integración continua.
 
