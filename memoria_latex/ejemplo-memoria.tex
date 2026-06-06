@@ -43,43 +43,41 @@
 
 % Editar: Resumen en Español (obligatorio)
 \begin{resumen}
-\setlength{\parskip}{1em} % <--- ESTA ES LA LÍNEA MÁGICA
-La falta de educación financiera es una barrera significativa para muchos inversores particulares, quienes a menudo carecen de herramientas prácticas para experimentar con estrategias de inversión a largo plazo sin arriesgar capital real. Este TFG presenta el diseño y desarrollo de una aplicación web dedicada al análisis fundamental de empresas y la simulación de carteras de inversión.
+\setlength{\parskip}{1em}
+La falta de educación financiera constituye una barrera relevante para muchos inversores particulares, que a menudo carecen de herramientas prácticas para experimentar con estrategias de inversión a largo plazo sin arriesgar capital real. Este Trabajo de Fin de Grado presenta el diseño y desarrollo de una aplicación web educativa de simulación de inversión, construida con Flask e integrada con datos históricos obtenidos a través de Yahoo Finance.
 
-El sistema, desarrollado en Python con el \textit{framework} Flask, integra datos bursátiles reales a través de la API de Yahoo Finance y ofrece un novedoso "Modo Carrera". Este modo gamifica la experiencia de inversión, permitiendo al usuario gestionar su patrimonio a través de diferentes escenarios históricos y eventos macroeconómicos simulados.
+En su estado final, el sistema combina autenticación por correo, modo invitado y usuario registrado, persistencia mediante PostgreSQL desplegado en Render, historial para usuarios autenticados y varios módulos funcionales complementarios: Modo Práctica, Modo Carrera, readiness quiz, Modo Horizonte de carácter experimental y no predictivo, y un Tutor IA opcional orientado al análisis educativo del informe final.
 
-Desde una perspectiva técnica, el proyecto destaca por la implementación de un ciclo de vida de desarrollo de software moderno, integrando pruebas automatizadas (\textit{testing}) y despliegue continuo (CI/CD) mediante GitHub Actions y Render. Los resultados demuestran la viabilidad de crear herramientas financieras educativas robustas y escalables con costes de infraestructura mínimos.
+Desde una perspectiva técnica, el proyecto incorpora un rediseño frontend completo, validación automatizada con GitHub Actions y una batería final de 29 pruebas superadas. El resultado muestra la viabilidad de construir una herramienta financiera educativa desplegada en entorno real, con continuidad de uso, soporte pedagógico y una arquitectura suficientemente robusta para el alcance académico del proyecto.
 \end{resumen}
 \cleardoublepage
 
 % Editar: Resumen en Inglés
 \begin{abstract}
-\setlength{\parskip}{1em} % <--- AÑADIR AQUÍ TAMBIÉN
-The lack of financial literacy acts as a significant barrier for many retail investors, who often lack practical tools to experiment with long-term investment strategies without risking real capital. This TFG presents the design and development of a web application dedicated to fundamental company analysis and investment portfolio simulation.
+\setlength{\parskip}{1em}
+Financial illiteracy remains a significant barrier for many retail investors, who often lack practical tools to experiment with long-term investment strategies without risking real capital. This Final Degree Project presents the design and development of an educational web application for investment simulation, built with Flask and integrated with historical market data obtained through Yahoo Finance.
 
-The system, developed in Python using the Flask framework, integrates real stock market data via the Yahoo Finance API and features a novel "Career Mode." This mode gamifies the investment experience, allowing users to manage their wealth across various historical scenarios and simulated macroeconomic events.
+In its final state, the system combines email-based authentication, guest and registered-user modes, persistence through PostgreSQL deployed on Render, history for authenticated users and several complementary modules: Practice Mode, Career Mode, a readiness quiz, an experimental non-predictive Horizon Mode, and an optional AI Tutor designed to support the educational interpretation of the final report.
 
-From a technical perspective, the project stands out for its implementation of a modern software development lifecycle, integrating automated testing and continuous deployment (CI/CD) using GitHub Actions and Render. The results demonstrate the feasibility of creating robust and scalable educational financial tools with minimal infrastructure costs.
+From a technical perspective, the project incorporates a complete frontend redesign, automated validation through GitHub Actions and a final test suite with 29 passing tests. The resulting application shows the feasibility of building an educational financial tool deployed in a real environment, with continuity of use, pedagogical support and a sufficiently robust architecture for the academic scope of the project.
 \end{abstract}
 \cleardoublepage
 
 % Editar: Resumen en Valenciano
 \begin{resum}
-\setlength{\parskip}{1em} % <--- Y AQUÍ
-La manca d'educació financera és una barrera significativa per a molts inversors particulars, els quals sovint manquen d'eines pràctiques per a experimentar amb estratègies d'inversió a llarg termini sense arriscar capital real. Aquest TFG presenta el disseny i desenvolupament d'una aplicació web dedicada a l'anàlisi fonamental d'empreses i la simulació de carteres d'inversió.
+\setlength{\parskip}{1em}
+La manca d'educació financera constitueix una barrera rellevant per a molts inversors particulars, que sovint no disposen d'eines pràctiques per a experimentar amb estratègies d'inversió a llarg termini sense arriscar capital real. Aquest Treball de Fi de Grau presenta el disseny i desenvolupament d'una aplicació web educativa de simulació d'inversió, construïda amb Flask i integrada amb dades històriques obtingudes a través de Yahoo Finance.
 
-El sistema, desenvolupat en Python amb el \textit{framework} Flask, integra dades borsàries reals a través de l'API de Yahoo Finance i ofereix un nou "Mode Carrera". Aquest mode ludifica l'experiència d'inversió, permetent a l'usuari gestionar el seu patrimoni a través de diferents escenaris històrics i esdeveniments macroeconòmics simulats.
+En l'estat final del projecte, el sistema combina autenticació per correu electrònic, mode convidat i usuari registrat, persistència mitjançant PostgreSQL desplegat en Render, historial per a usuaris autenticats i diversos mòduls complementaris: Mode Pràctica, Mode Carrera, readiness quiz, Mode Horitzó de caràcter experimental i no predictiu, i un Tutor IA opcional orientat a l'anàlisi educativa de l'informe final.
 
-Des d'una perspectiva tècnica, el projecte destaca per la implementació d'un cicle de vida de desenvolupament de programari modern, integrant proves automatitzades (\textit{testing}) i desplegament continu (CI/CD) mitjançant GitHub Actions i Render. Els resultats demostren la viabilitat de crear eines financeres educatives robustes i escalables amb costos d'infraestructura mínims.
+Des d'una perspectiva tècnica, el projecte incorpora un redisseny frontend complet, validació automatitzada amb GitHub Actions i una bateria final de 29 proves superades. El resultat mostra la viabilitat de construir una eina financera educativa desplegada en un entorn real, amb continuïtat d'ús, suport pedagògic i una arquitectura prou robusta per a l'abast acadèmic del projecte.
 \end{resum}
 \cleardoublepage
 
 
 % Editar: Agradecimientos (opcional)
 \begin{agradecimientos}
-  En primer lugar quiero agradecer a todos aquellos que me han apoyado durante todos estos años.
-
-  En segundo lugar...
+Quiero agradecer a mi tutor, Santiago Carlos Ezpeleta Plaza, su orientación durante el desarrollo de este Trabajo de Fin de Grado. Asimismo, agradezco a mi familia, amistades y compañeros el apoyo recibido durante el proceso de elaboración del proyecto.
 \end{agradecimientos}
 \cleardoublepage
 
@@ -117,9 +115,8 @@ Des d'una perspectiva tècnica, el projecte destaca per la implementació d'un c
 
 % -------------------------------------
 
-\pagestyle{appendix}
-
 \appendix
+\pagestyle{appendix}
 \input{tex/apendice.tex}
 
 \addcontentsline{toc}{chapter}{Bibliografía}
