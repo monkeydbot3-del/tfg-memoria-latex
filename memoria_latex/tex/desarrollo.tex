@@ -15,13 +15,13 @@ La arquitectura implementada mantiene una separación clara entre responsabilida
     \item \textbf{Capa de persistencia y servicios:} integra el acceso a PostgreSQL en Render, la autenticación por correo electrónico y contraseña, el historial de análisis, la persistencia de sesiones del modo carrera y los servicios auxiliares del sistema.
 \end{itemize}
 
-La estructura final no responde ya a un prototipo anónimo y efímero, sino a una solución web modular con diferenciación de usuarios, persistencia selectiva y validación progresiva del aprendizaje.
+La estructura final no responde ya a un prototipo anónimo y efímero, sino a una solución web modular con diferenciación de usuarios, persistencia selectiva y validación progresiva del aprendizaje. Esta organización general puede observarse en la Figura~\ref{fig:arquitectura-final}, donde se representa la relación entre presentación, control, lógica de negocio y persistencia.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.84\textwidth]{figs/arquitectura.png}
+    \includegraphics[width=\textwidth]{figs/arquitectura.png}
     \caption{Arquitectura de alto nivel de la aplicación en su estado final.}
-    \label{fig:arquitectura_final}
+    \label{fig:arquitectura-final}
 \end{figure}
 
 \subsection{Módulos principales}
