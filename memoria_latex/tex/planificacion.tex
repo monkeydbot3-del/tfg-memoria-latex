@@ -2,6 +2,42 @@
 
 La evolución del proyecto obligó a revisar y ampliar los requisitos iniciales a medida que la aplicación dejaba de ser un prototipo centrado exclusivamente en la simulación puntual y pasaba a convertirse en un sistema web más completo, con autenticación, persistencia, progresión pedagógica y despliegue estable.
 
+\subsection{Casos de uso del sistema}
+
+Además de la enumeración textual de requisitos, se elaboraron diagramas de casos de uso para representar de forma visual la interacción entre los actores principales y las funcionalidades del sistema. Estos diagramas permiten separar la visión general del producto de los flujos específicos de autenticación, simulación y progreso educativo.
+
+La Figura~\ref{fig:casos-uso-general} ofrece una visión global del sistema, mientras que las Figuras~\ref{fig:casos-uso-autenticacion}, \ref{fig:casos-uso-simulaciones} y \ref{fig:casos-uso-aprendizaje} descomponen los bloques principales asociados al acceso, a la simulación y al progreso pedagógico.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figs/figura_casos_uso_general.png}
+    \caption{Diagrama general de casos de uso del sistema.}
+    \label{fig:casos-uso-general}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/figura_casos_uso_autenticacion.png}
+    \caption{Casos de uso asociados al acceso, autenticación y modo invitado.}
+    \label{fig:casos-uso-autenticacion}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figs/figura_casos_uso_simulaciones.png}
+    \caption{Casos de uso asociados a los módulos de simulación y análisis.}
+    \label{fig:casos-uso-simulaciones}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figs/figura_casos_uso_aprendizaje_progreso.png}
+    \caption{Casos de uso asociados al aprendizaje, progreso y apoyo pedagógico.}
+    \label{fig:casos-uso-aprendizaje}
+\end{figure}
+
+Esta descomposición facilita la trazabilidad entre los requisitos funcionales definidos y los módulos finalmente implementados.
+
 \subsection{Requisitos funcionales}
 
 En su estado final, la aplicación debía satisfacer al menos los siguientes requisitos funcionales:
