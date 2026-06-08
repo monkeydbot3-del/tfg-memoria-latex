@@ -1,114 +1,174 @@
-% Contenidos del capítulo
-% Las secciones presentadas son orientativas y no representan
-% necesariamente la organización que debe tener este capítulo.
+\section{Identificación de requisitos}
 
-\section{Identificación de Requisitos}
+La evolución del proyecto obligó a revisar y ampliar los requisitos iniciales a medida que la aplicación dejaba de ser un prototipo centrado exclusivamente en la simulación puntual y pasaba a convertirse en un sistema web más completo, con autenticación, persistencia, progresión pedagógica y despliegue estable.
 
-En este apartado se recogen los requisitos principales que debe cumplir la aplicación desarrollada. Se distinguen, por un lado, los requisitos funcionales asociados al comportamiento observable por el usuario y, por otro, los requisitos no funcionales relacionados con la calidad, el despliegue y la experiencia de uso.
+\subsection{Casos de uso del sistema}
 
-\subsection{Requisitos Funcionales}
+Además de la enumeración textual de requisitos, se elaboraron diagramas de casos de uso para representar de forma visual la interacción entre los actores principales y las funcionalidades del sistema. Estos diagramas permiten separar la visión general del producto de los flujos específicos de autenticación, simulación y progreso educativo.
 
-El sistema deberá permitir, como mínimo, las siguientes funcionalidades:
+La Figura~\ref{fig:casos-uso-general} ofrece una visión global del sistema, mientras que las Figuras~\ref{fig:casos-uso-autenticacion}, \ref{fig:casos-uso-simulaciones} y \ref{fig:casos-uso-aprendizaje} descomponen los bloques principales asociados al acceso, a la simulación y al progreso pedagógico.
 
-\begin{itemize}
-    \item \textbf{RF-01 Gestión de sesiones:} El sistema gestionará el estado del usuario mediante sesiones anónimas (basadas en cookies y un \textit{session\_id}) para el \textit{Modo Carrera}, permitiendo seguir el progreso de cada partida sin necesidad de un registro persistente con usuario y contraseña.
-
-    \item \textbf{RF-02 Visualización de rentabilidad:} La aplicación generará gráficos dinámicos que comparen la rentabilidad porcentual de los activos individuales y de la cartera total frente a un \textit{benchmark} de referencia (por ejemplo, el S\&P 500), de forma que el usuario pueda interpretar fácilmente la evolución de su estrategia.
-
-    \item \textbf{RF-03 Simulación (\textit{Modo Carrera}):} El sistema permitirá al usuario gestionar una cartera virtual a lo largo de periodos históricos, tomando decisiones de compra, venta o rebalanceo en cada turno. Cada decisión afectará a la evolución futura del patrimonio simulado.
-
-    \item \textbf{RF-04 Eventos aleatorios:} Se generarán eventos macroeconómicos (noticias, crisis, inflación, cambios de tipos, etc.) que impacten en la valoración de la cartera, con el objetivo de evaluar cómo reacciona el inversor ante cambios de ciclo y situaciones de estrés de mercado.
-\end{itemize}
-
-\subsection{Requisitos No Funcionales}
-
-Además de las funcionalidades anteriores, la aplicación debe cumplir una serie de requisitos no funcionales:
-
-\begin{itemize}
-    \item \textbf{RNF-01 Disponibilidad y despliegue:} La aplicación estará desplegada en la nube mediante la plataforma \textbf{Render} \cite{render}, utilizando el nivel gratuito. Debido a las limitaciones de este plan, el servicio puede entrar en suspensión tras un periodo de inactividad, requiriendo un breve tiempo de arranque (\textit{cold start}) en la siguiente petición.
-
-    \item \textbf{RNF-02 Calidad del código:} El desarrollo seguirá el estándar de estilo \textbf{PEP~8} \cite{pep8}, verificado mediante la herramienta \texttt{ruff} \cite{ruff}, y contará con una estrategia de pruebas automatizadas implementada con \texttt{pytest} \cite{pytest}, para asegurar la fiabilidad de la lógica financiera y reducir la aparición de regresiones.
-
-    \item \textbf{RNF-03 Usabilidad y diseño \textit{responsive}:} La interfaz web debe ser adaptable (\textit{responsive}), garantizando una visualización correcta tanto en monitores de escritorio como en dispositivos móviles, y manteniendo una organización clara de los elementos de análisis y simulación.
-\end{itemize}
-
-\section{Metodología de Trabajo}
-
-A lo largo del desarrollo se ha seguido una metodología de trabajo ágil e incremental, organizando el proyecto en pequeños entregables que se iban validando de forma continua. El ciclo de desarrollo se ha apoyado en las siguientes prácticas:
-
-\begin{itemize}
-    \item \textbf{Control de versiones:} Se ha utilizado \textbf{Git} \cite{progit} como sistema de control de versiones, trabajando con ramas específicas (\textit{feature branches}) para cada nueva funcionalidad o corrección. Esto ha facilitado el aislamiento de cambios y la integración progresiva en la rama principal del proyecto.
-
-    \item \textbf{Diario de desarrollo:} Se ha mantenido un diario de desarrollo donde se registran los avances, los problemas encontrados y las decisiones técnicas adoptadas. Este diario ha servido como herramienta de autoevaluación y también como apoyo para la planificación de los siguientes pasos.
-\end{itemize}
-
-\begin{figure}[h]
+\begin{figure}[htbp]
     \centering
-    % Corregido el nombre a 'diario.png' para coincidir con la subida anterior
-    \includegraphics[width=0.8\textwidth]{figs/diario.png}
-    \caption{Ejemplo del diario de desarrollo utilizado durante el proyecto.}
-    \label{fig:diario}
+    \includegraphics[width=0.92\textwidth]{figs/figura_casos_uso_general.png}
+    \caption{Diagrama general de casos de uso del sistema.}
+    \label{fig:casos-uso-general}
 \end{figure}
 
-\section{Planificación Temporal}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/figura_casos_uso_autenticacion.png}
+    \caption{Casos de uso asociados al acceso, autenticación y modo invitado.}
+    \label{fig:casos-uso-autenticacion}
+\end{figure}
 
-El desarrollo del proyecto se ha estructurado en cuatro hitos principales:
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figs/figura_casos_uso_simulaciones.png}
+    \caption{Casos de uso asociados a los módulos de simulación y análisis.}
+    \label{fig:casos-uso-simulaciones}
+\end{figure}
 
-\begin{enumerate}
-    \item \textbf{Investigación y configuración inicial:} Búsqueda y evaluación de posibles fuentes de datos financieros, selección de la API (Yahoo Finance \cite{yfinance}) y puesta en marcha del entorno de desarrollo, incluyendo la configuración básica de CI/CD \cite{github_actions}.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figs/figura_casos_uso_aprendizaje_progreso.png}
+    \caption{Casos de uso asociados al aprendizaje, progreso y apoyo pedagógico.}
+    \label{fig:casos-uso-aprendizaje}
+\end{figure}
 
-    \item \textbf{Desarrollo del \textit{backend}:} Implementación de la lógica financiera (descarga y procesado de datos, cálculo de métricas) y del motor de simulación del \textit{Modo Carrera} en Python \cite{python}, así como la definición de los endpoints de la API interna.
+Esta descomposición facilita la trazabilidad entre los requisitos funcionales definidos y los módulos finalmente implementados.
 
-    \item \textbf{Desarrollo del \textit{frontend}:} Diseño e implementación de las plantillas Jinja2 \cite{jinja2} y de los componentes visuales de la aplicación, incluyendo los gráficos interactivos con Chart.js \cite{chartjs} y las vistas de empresas, análisis y modo carrera.
+\subsection{Requisitos funcionales}
 
-    \item \textbf{Despliegue y documentación:} Configuración del servicio en Render, pruebas finales en el entorno desplegado y elaboración de la memoria del TFG y del manual de usuario asociado a la \textit{TFG Web App}.
-\end{enumerate}
+En su estado final, la aplicación debía satisfacer al menos los siguientes requisitos funcionales:
 
-\section{Estudio de Viabilidad}
-
-Para garantizar el éxito del proyecto, se ha realizado un análisis de viabilidad desde tres perspectivas fundamentales: técnica, económica y legal.
-
-\subsection{Viabilidad Técnica}
-El proyecto es técnicamente viable gracias a la madurez del ecosistema Python y la disponibilidad de herramientas de código abierto. El uso de micro-frameworks como \textbf{Flask} permite un desarrollo ágil sin la sobrecarga de soluciones más pesadas, adecuado para el alcance de un TFG. La infraestructura de despliegue se apoya en el nivel gratuito de \textbf{Render}, que proporciona suficiente capacidad de cómputo (con las optimizaciones de memoria adecuadas) para soportar la carga esperada de usuarios concurrentes en un entorno académico y de demostración.
-
-\subsection{Viabilidad Económica}
-Aunque se trata de un proyecto académico, es posible realizar una estimación aproximada de costes considerando el tiempo de desarrollo y los recursos materiales utilizados. La Tabla~\ref{tab:costes} recoge un presupuesto orientativo, destacando que el coste de licencias e infraestructura es nulo gracias al uso de software libre y planes \textit{free tier}.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|r|}
-\hline
-\textbf{Concepto} & \textbf{Unidades} & \textbf{Coste unitario} & \textbf{Total} \\ \hline
-Ingeniero Junior & 300 horas & 20 €/h & 6.000 € \\ \hline
-Amortización portátil & 4 meses & 20 €/mes & 80 € \\ \hline
-Servidor Render & 4 meses & 0 € (Free Tier) & 0 € \\ \hline
-\textbf{TOTAL} & & & \textbf{6.080 €} \\ \hline
-\end{tabular}
-\caption{Presupuesto estimativo del proyecto.}
-\label{tab:costes}
-\end{table}
-
-\subsection{Viabilidad Legal}
-El proyecto respeta la normativa vigente en materia de propiedad intelectual y protección de datos:
 \begin{itemize}
-    \item \textbf{Licencias de Software:} Todas las librerías utilizadas (\texttt{pandas}, \texttt{flask}, \texttt{yfinance}) se distribuyen bajo licencias permisivas (MIT, BSD o Apache 2.0) que permiten su uso libre y modificación.
-    \item \textbf{Uso de Datos:} La librería \texttt{yfinance} accede a datos públicos de Yahoo Finance. Si bien no es una API oficial para uso comercial masivo, su uso en un contexto educativo y de investigación sin ánimo de lucro se considera aceptable dentro de los términos de uso justo.
-    \item \textbf{Privacidad (GDPR):} La aplicación no almacena datos personales (nombres, correos, IPs) en bases de datos persistentes. El sistema de sesiones es anónimo y temporal, eliminando la necesidad de gestionar consentimientos complejos de tratamiento de datos personales.
+    \item \textbf{RF-01 Gestión de acceso y perfiles de uso:} el sistema debía diferenciar entre usuario autenticado y usuario invitado, conservando para el primero historial y continuidad, y ofreciendo al segundo una experiencia exploratoria sin persistencia estable.
+    \item \textbf{RF-02 Visualización de rentabilidad:} la aplicación debía generar gráficos y métricas comparativas entre cartera, activos individuales y \textit{benchmark}, facilitando la interpretación del resultado histórico.
+    \item \textbf{RF-03 Modo Práctica:} el usuario debía poder configurar y ejecutar análisis históricos puntuales sobre activos concretos.
+    \item \textbf{RF-04 Modo Carrera:} el sistema debía permitir la gestión de una cartera virtual a lo largo de distintos turnos históricos, con decisiones periódicas, eventos y generación de informe final.
+    \item \textbf{RF-05 Readiness quiz:} el acceso al modo carrera debía quedar condicionado por un cuestionario de preparación que reforzase el carácter pedagógico del sistema.
+    \item \textbf{RF-06 Modo Horizonte:} la aplicación debía ofrecer un módulo experimental de proyección educativa basado en patrones históricos, dejando explícito que no constituye una predicción real del mercado.
+    \item \textbf{RF-07 Tutor IA opcional:} el informe final del modo carrera debía poder complementarse con una capa de análisis educativo asistido por IA, con carácter opcional y sin asesoramiento financiero real.
 \end{itemize}
 
-\section{Análisis de Riesgos}
+\subsection{Requisitos no funcionales}
 
-Se han identificado los siguientes riesgos potenciales para el desarrollo y operación del sistema, estableciendo planes de mitigación para cada uno:
+A estos requisitos funcionales se sumaron varios requisitos no funcionales determinantes para el cierre del proyecto:
+
+\begin{itemize}
+    \item \textbf{RNF-01 Despliegue y disponibilidad:} la aplicación debía desplegarse en Render \cite{render} y mantenerse operativa sobre una infraestructura de bajo coste, asumiendo las limitaciones del plan gratuito.
+    \item \textbf{RNF-02 Persistencia real:} la solución debía contar con persistencia fiable mediante PostgreSQL en Render para usuarios, historial y sesiones críticas.
+    \item \textbf{RNF-03 Calidad del código:} el desarrollo debía acompañarse de validación técnica repetible mediante \texttt{py\_compile}, \texttt{ruff}, \texttt{black --check} y \texttt{pytest} \cite{pytest,ruff,pep8}.
+    \item \textbf{RNF-04 Integración continua:} la rama principal debía quedar respaldada por GitHub Actions \cite{github_actions} como mecanismo de validación automática.
+    \item \textbf{RNF-05 Usabilidad y diseño responsive:} la interfaz debía mantener coherencia visual entre pantallas, formularios y estados, tanto en escritorio como en móvil.
+\end{itemize}
+
+\section{Metodología de trabajo}
+
+El proceso seguido no fue estrictamente lineal, sino iterativo. A medida que el sistema crecía en complejidad funcional, se adoptó una metodología de trabajo basada en pequeñas iteraciones validadas técnica y visualmente antes de consolidarse.
+
+\subsection{Desarrollo incremental y validación continua}
+
+El proyecto se desarrolló mediante una secuencia de mejoras progresivas sobre funcionalidades existentes. Esta forma de trabajo permitió detectar con rapidez incidencias reales, validar el comportamiento del sistema en producción y refinar el producto sin necesidad de rehacerlo desde cero.
+
+La metodología combinó:
+\begin{itemize}
+    \item cambios pequeños y trazables;
+    \item validación técnica frecuente;
+    \item revisión visual en entorno desplegado;
+    \item documentación continua de decisiones y resultados.
+\end{itemize}
+
+\subsection{Control de versiones y estrategia de ramas}
+
+El control de versiones se apoyó en \textbf{Git} \cite{progit}. La organización final del trabajo distinguió varias ramas con roles claros:
+
+\begin{itemize}
+    \item \textbf{main:} rama principal consolidada y versión final oficial del proyecto.
+    \item \textbf{bot/render-preview:} rama utilizada para revisión visual en Render durante las fases de rediseño y estabilización.
+    \item \textbf{feature/frontend-redesign-v2:} rama de trabajo principal del rediseño frontend por fases.
+    \item \textbf{stable/pre-redesign:} rama de congelación funcional previa al rediseño completo.
+\end{itemize}
+
+Esta estrategia permitió separar trabajo experimental, validación en preview y consolidación final en \texttt{main}. Como cierre del proceso de rediseño, el repositorio quedó etiquetado con el tag \texttt{v1.1-frontend-redesign}.
+
+\subsection{Metodología asistida}
+
+Durante la fase final del proyecto se utilizó asistencia al desarrollo integrada en el flujo de trabajo y sometida en todo momento a supervisión humana. Su papel se limitó al apoyo en tareas de diagnóstico, documentación, propuestas de cambio, validación iterativa y organización del trabajo.
+
+Desde el punto de vista metodológico, este enfoque permitió acelerar tareas repetitivas y mantener trazabilidad sobre ramas, commits y validaciones, sin sustituir la toma de decisiones ni la responsabilidad técnica del desarrollo.
+
+\section{Planificación temporal y evolución real del proyecto}
+
+Aunque el proyecto partió de una planificación inicial clásica, su evolución efectiva se organizó en hitos funcionales y de estabilización más próximos a un desarrollo iterativo. La Tabla~\ref{tab:hitos_proyecto_final} resume los hitos principales hasta el cierre.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{0.22\textwidth}|p{0.42\textwidth}|p{0.22\textwidth}|}
 \hline
-\textbf{Riesgo} & \textbf{Impacto} & \textbf{Plan de Mitigación} \\ \hline
-Cambios o bloqueos en la API de Yahoo Finance & Alto (Pérdida de acceso a datos de mercado) & Diseño modular del proveedor de datos (\texttt{routes.py}) para facilitar la sustitución por otra fuente (ej. Alpha Vantage) si fuera necesario. \\ \hline
-Limitaciones de memoria en el servidor gratuito & Medio (Errores 500 o reinicios del servicio) & Optimización del uso de RAM mediante tipos de datos ligeros (\texttt{float32}), recolección de basura manual y limitación de la combinatoria en los cálculos teóricos. \\ \hline
-Regresiones en el código & Medio (Fallos en funcionalidades ya existentes) & Implementación estricta de Integración Continua (CI) con \textit{GitHub Actions} que impide integrar código que no pase las pruebas unitarias. \\ \hline
+\textbf{Hito} & \textbf{Descripción} & \textbf{Resultado} \\ \hline
+Modos base del sistema & Construcción del núcleo inicial de análisis y simulación & Base funcional de la aplicación \\ \hline
+Autenticación y persistencia & Incorporación de login por correo, modo invitado e historial persistente & Diferenciación real entre perfiles de usuario \\ \hline
+Readiness y modo carrera & Integración del cuestionario de preparación y persistencia progresiva de sesiones & Flujo pedagógico y continuidad de juego \\ \hline
+Modo Horizonte & Incorporación del módulo experimental no predictivo & Extensión educativa del ecosistema de simulación \\ \hline
+Rediseño frontend por fases & Ejecución de siete fases de rediseño visual y revisión global final & Interfaz coherente y más madura \\ \hline
+Validación en Render & Revisión del comportamiento real en entorno desplegado & Corrección de problemas visuales y funcionales reales \\ \hline
+Consolidación en main & Integración de la versión validada y creación de tag final & Cierre estable del frontend en rama principal \\ \hline
+Hotfix final auth/navbar & Corrección del renderizado de estado autenticado en navegación interna & Coherencia final entre sesión real y UI \\ \hline
 \end{tabular}
-\caption{Matriz de riesgos y plan de mitigación.}
-\label{tab:riesgos}
+\caption{Hitos principales de la evolución real del proyecto hasta su cierre.}
+\label{tab:hitos_proyecto_final}
+\end{table}
+
+\subsection{Rediseño frontend por fases}
+
+Una parte sustancial del cierre del proyecto consistió en un rediseño frontend ejecutado por fases. El trabajo no se planteó como una reescritura completa, sino como una secuencia de mejoras controladas sobre la interfaz ya existente.
+
+Las fases principales fueron las siguientes:
+
+\begin{itemize}
+    \item Fase 1: sistema visual base.
+    \item Fase 2: home, login, registro y navbar.
+    \item Fase 3: aprender y readiness quiz.
+    \item Fase 4: modo práctica o nuevo análisis.
+    \item Fase 5: modo carrera.
+    \item Fase 6: modo horizonte.
+    \item Fase 7: revisión global final de coherencia visual y responsive.
+\end{itemize}
+
+La validación de estas fases se realizó primero sobre la rama de vista previa y después sobre la rama principal, una vez confirmada su estabilidad. El detalle funcional de cada fase se desarrolla en el capítulo de implementación, por lo que aquí solo se recoge su papel dentro de la planificación y de la evolución global del proyecto.
+
+\section{Estudio de viabilidad}
+
+\subsection{Viabilidad técnica}
+
+El proyecto resultó técnicamente viable gracias a la madurez del ecosistema Python, al uso de Flask como \textit{microframework} y a la disponibilidad de servicios de despliegue y base de datos accesibles en la nube. La combinación entre Render y PostgreSQL permitió validar el sistema con un grado de realismo suficiente para el alcance académico del TFG.
+
+\subsection{Viabilidad económica}
+
+Desde el punto de vista económico, el uso de herramientas de código abierto y de planes gratuitos redujo el coste directo de infraestructura. No obstante, la experiencia final también puso de manifiesto la fragilidad de este tipo de servicios cuando expiran recursos asociados, como ocurrió con una base de datos anterior de Render. Por ello, el modelo seguido es viable para un TFG, aunque no necesariamente óptimo como solución estable a largo plazo.
+
+\subsection{Viabilidad legal y de datos}
+
+La aplicación utiliza bibliotecas y herramientas bajo licencias permisivas y se apoya en datos públicos accesibles mediante Yahoo Finance. Sin embargo, al incorporar autenticación y persistencia de usuarios, la dimensión de protección de datos deja de poder describirse como puramente anónima. Aunque el alcance del TFG no persigue explotación comercial ni tratamiento masivo de datos, el sistema final sí distingue entre identidad autenticada e invitada, lo que obliga a considerar con mayor cuidado la gestión responsable de credenciales, sesiones y datos persistidos.
+
+\section{Análisis de riesgos}
+
+Los riesgos identificados durante la evolución real del proyecto fueron los siguientes:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{0.28\textwidth}|p{0.27\textwidth}|p{0.32\textwidth}|}
+\hline
+\textbf{Riesgo} & \textbf{Impacto} & \textbf{Mitigación aplicada} \\ \hline
+Cambios o límites del proveedor de datos & Alto & Tratamiento controlado de errores, reintentos y degradación amistosa ante incidencias externas. \\ \hline
+Expiración o fragilidad de infraestructura gratuita & Medio/alto & Recreación de base de datos en Render y revalidación funcional del sistema sobre la nueva instancia. \\ \hline
+Regresiones tras cambios iterativos & Alto & Validación frecuente con \texttt{py\_compile}, \texttt{ruff}, \texttt{black}, \texttt{pytest} y GitHub Actions. \\ \hline
+Incoherencias visuales entre pantallas & Medio & Trabajo por fases de rediseño y revisión en Render antes de consolidar en \texttt{main}. \\ \hline
+Errores de sesión o navegación en producción & Medio & Detección de incidencias reales y aplicación de hotfixes específicos, como la corrección final del estado de navbar. \\ \hline
+\end{tabular}
+\caption{Riesgos principales detectados y mecanismos de mitigación aplicados.}
+\label{tab:riesgos_actualizados}
 \end{table}

@@ -1,149 +1,124 @@
-% Contenidos del capítulo.
-% Las secciones presentadas son orientativas y no representan
-% necesariamente la organización que debe tener este capítulo.
-\section{Diseño de Pruebas}
+\section{Validación técnica automatizada}
 
-Para garantizar la fiabilidad del sistema, se ha seguido una estrategia de pruebas mixta que combina la verificación automática del código (Caja Blanca) con la validación funcional de la interfaz de usuario (Caja Negra).
+La fase final del proyecto se apoyó en una estrategia de validación técnica automatizada orientada a garantizar que las modificaciones sobre el sistema no introdujeran regresiones funcionales ni inconsistencias de calidad. Para ello se consolidó una secuencia estable de comprobaciones ejecutada de forma recurrente antes de integrar cambios relevantes.
 
-\subsection{Pruebas Automáticas (QA)}
-El aseguramiento de la calidad se ha integrado en el ciclo de desarrollo mediante herramientas de integración continua.
+Los comandos utilizados fueron los siguientes:
 
-\subsubsection{Análisis Estático y Estilo}
-Se ha utilizado la herramienta \texttt{ruff} \cite{ruff} para auditar el cumplimiento del estándar PEP8 \cite{pep8} y detectar errores de sintaxis o patrones peligrosos antes de la ejecución. Esto garantiza un código base limpio y mantenible.
+\begin{lstlisting}[language=bash, caption=Secuencia de validacion tecnica utilizada en la fase final]
+python3 -m py_compile run.py app/__init__.py app/routes.py app/auth.py \
+app/career.py app/models.py app/services/career_session_service.py
 
-\subsubsection{Pruebas Unitarias}
-Se ha implementado una batería de pruebas unitarias utilizando el \textit{framework} \textbf{pytest} \cite{pytest}. Estas pruebas verifican la lógica financiera crítica de forma aislada, asegurando que funciones como el cálculo del interés compuesto o la normalización de precios devuelvan resultados matemáticamente exactos.
+ruff check .
+
+black --check .
+
+SECRET_KEY=ci-secret-key DATABASE_URL=sqlite:///ci.db \
+pytest --cov=app --cov-report=xml
+\end{lstlisting}
+
+Cada una de estas herramientas cubre un aspecto complementario:
+
+\begin{itemize}
+    \item \textbf{py\_compile:} detecta errores sintácticos en los módulos críticos del sistema.
+    \item \textbf{ruff:} realiza análisis estático y comprobaciones de estilo y consistencia.
+    \item \textbf{black --check:} verifica el formato del código sin modificarlo.
+    \item \textbf{pytest:} ejecuta la batería de pruebas funcionales y de integración del proyecto.
+\end{itemize}
+
+\subsection{Resultado final de la batería de pruebas}
+
+En el cierre del proyecto, la validación completa alcanzó un resultado de \textbf{29 pruebas superadas}. Este valor incorpora tanto pruebas ya existentes del sistema como pruebas adicionales introducidas durante la estabilización final de autenticación y navegación.
+
+Los avisos deprecados observados en dependencias externas no bloquearon la ejecución y no comprometieron la validez de la suite, por lo que se consideraron \textit{warnings} no críticos dentro del entorno de desarrollo disponible.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.9\textwidth]{figs/test_output.png}
-    \caption{Resultado de la ejecución exitosa de la batería de pruebas automatizadas.}
-    \label{fig:test_output}
+    \includegraphics[width=0.86\textwidth]{figs/test_output.png}
+    \caption{Captura ilustrativa de una ejecución satisfactoria de la validación automatizada del sistema. La validación final del proyecto quedó cerrada con 29 pruebas superadas.}
+    \label{fig:test_output_final}
 \end{figure}
 
-\subsubsection{Integración Continua (CI)}
-Cada vez que se realiza un envío de código (\textit{push}) al repositorio, un flujo de trabajo de \textbf{GitHub Actions} \cite{github_actions} levanta un entorno virtual, instala las dependencias y ejecuta la totalidad de las pruebas. Si alguna prueba falla, el despliegue se bloquea automáticamente, impidiendo que llegue código defectuoso a producción.
+\section{Integración continua y validación sobre rama principal}
 
-\section{Pruebas Funcionales y Resultados}
+La validación técnica no se limitó a ejecuciones locales. Se reparó y estabilizó la configuración de \textbf{GitHub Actions}, de modo que la rama principal del proyecto quedara asociada a una comprobación automática de calidad. Este mecanismo permitió reforzar la confianza en el estado final de \texttt{main} tras la consolidación del rediseño y los hotfixes posteriores.
 
-Se han realizado pruebas manuales para validar los requisitos funcionales definidos en el Capítulo 4, verificando la correcta integración entre el \textit{frontend}, el \textit{backend} y la API externa.
-
-\subsection{Validación de la Interfaz de Usuario}
-La interfaz ha demostrado ser intuitiva y robusta. A continuación se muestran los resultados finales de las pantallas principales:
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figs/pantalla_graficos.png}
-    \caption{Visualización comparativa de rentabilidad de los activos en cartera.}
-    \label{fig:ui_graficos}
-\end{figure}
-
-\subsection{Adaptabilidad (Responsive Design)}
-Se ha verificado el correcto funcionamiento en dispositivos móviles, cumpliendo el requisito RNF-03. Los menús de navegación colapsan correctamente y los gráficos de \texttt{Chart.js} \cite{chartjs} se redimensionan sin perder legibilidad.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.4\textwidth]{figs/ui_mobile.png}
-    \caption{Adaptación de la interfaz a dispositivos móviles.}
-    \label{fig:ui_mobile}
-\end{figure}
-
-
-\subsection{Pruebas de Rendimiento y Estabilidad en Producción}
-
-Durante la fase de despliegue y validación en el entorno de producción (Render, nivel gratuito), se detectó una incidencia crítica relacionada con la gestión de recursos. Al iniciar sesiones de simulación con horizontes temporales extensos (superiores a 10 años) o generar informes complejos, la aplicación sufría terminaciones abruptas del servicio.
-
-El análisis de los registros del servidor (\textit{logs}) reveló errores de tipo \texttt{SIGKILL} y \texttt{OOM (Out of Memory)}, indicando que el proceso de la aplicación excedía el límite estricto de 512 MB de memoria RAM impuesto por el contenedor. Adicionalmente, se observaron errores de \textit{timeout} (tiempo de espera agotado) en el servidor Gunicorn al realizar cálculos combinatorios intensivos para el informe final.
-
-Para solucionar estos problemas y garantizar la estabilidad del sistema, se implementaron las siguientes medidas correctivas en el módulo \texttt{career.py}:
+La utilidad de esta integración continua fue doble:
 
 \begin{itemize}
-    \item \textbf{Optimización de memoria caché:} Se sustituyó el almacenamiento global de series históricas (que provocaba fugas de memoria) por el uso del decorador \texttt{@lru\_cache} de la librería estándar, limitando el almacenamiento en memoria a las últimas 32 consultas y forzando la liberación de recursos no utilizados.
-    \item \textbf{Reducción de precisión de datos:} Se implementó la conversión de los \textit{DataFrames} de \texttt{pandas} al tipo de dato \texttt{float32}, reduciendo el peso de las series temporales en memoria en aproximadamente un 50\% sin comprometer la precisión necesaria para la simulación.
-    \item \textbf{Acotación de la complejidad computacional:} Se ajustó el algoritmo de generación de carteras teóricas, reduciendo el límite de combinaciones a evaluar (de 30 a 15 candidatos) y forzando la recolección de basura (\texttt{gc.collect()}) tras procesos intensivos de descarga de datos.
-    \item \textbf{Ajuste de parámetros de dificultad:} Se recalibraron los rangos de años permitidos en la configuración de dificultad para alinearlos con la capacidad de procesamiento del plan gratuito.
+    \item detectar con rapidez errores de formato, sintaxis o regresión;
+    \item convertir la rama principal en una referencia técnica más fiable para cierre y entrega.
 \end{itemize}
 
-Tras aplicar estas optimizaciones, se verificó mediante nuevas pruebas de estrés que el consumo de memoria se mantiene estable por debajo del umbral crítico, permitiendo la ejecución fluida del ciclo completo de simulación.
+\section{Validación visual en Render}
 
-\section{Pruebas de Usabilidad y Validación de Producto}
+Además de la validación automatizada, el proyecto requirió una validación visual manual sobre el entorno realmente desplegado. Para ello se utilizó Render como plataforma de ejecución en producción y se combinó un flujo de trabajo con rama de vista previa y rama principal.
 
-Con el objetivo de garantizar no solo la corrección técnica, sino también la adecuación del producto al mercado y su valor didáctico, se diseñó una estrategia de validación cualitativa (\textit{User Testing}) con cuatro perfiles estratégicos.
+Durante el rediseño frontend, la rama \texttt{bot/render-preview} se utilizó para revisar visualmente los cambios antes de su consolidación definitiva. Una vez cerradas las fases del rediseño y superadas las microcorrecciones finales, dichos cambios se integraron en \texttt{main}, que pasó a representar la versión oficial del producto.
 
-Esta fase ha sido fundamental para elevar la calidad final del proyecto, permitiendo refinar la experiencia de usuario (UX) y confirmar las hipótesis pedagógicas planteadas en los objetivos del TFG.
-
-\subsection{Perfiles de Validación}
-Se seleccionó un panel de usuarios complementarios para auditar todas las dimensiones de la aplicación:
+La revisión visual se centró en las pantallas principales:
 
 \begin{itemize}
-    \item \textbf{Perfil A (Experto Institucional):} Embajador Tecnológico e inversor activo. \textit{Objetivo:} Auditar la robustez de los datos y la seriedad de la propuesta.
-    \item \textbf{Perfil B (Usuario Novel):} Usuario sin conocimientos previos. \textit{Objetivo:} Evaluar la curva de aprendizaje y la accesibilidad.
-    \item \textbf{Perfil C (Especialista UI/UX):} Diseñador web. \textit{Objetivo:} Analizar la jerarquía visual y la usabilidad en dispositivos móviles.
-    \item \textbf{Perfil D (Inversor Tradicional):} Conocimientos financieros sólidos con perfil digital básico. \textit{Objetivo:} Validar la utilidad real de la herramienta para combatir malos hábitos de inversión.
+    \item Home;
+    \item Login y Registro;
+    \item Aprender y readiness quiz;
+    \item Modo Práctica;
+    \item Modo Carrera;
+    \item Modo Horizonte;
+    \item Historial.
 \end{itemize}
 
-\subsection{Análisis de Resultados}
+Esta validación permitió corregir jerarquía visual, inconsistencias entre botones, alineaciones, responsive intermedio y diferencias entre estados antes del cierre del proyecto.
 
-Los resultados de las sesiones de prueba fueron altamente satisfactorios, validando la propuesta de valor y permitiendo un pulido final de la interfaz:
+\section{Validación con PostgreSQL y entorno Render}
 
-\begin{enumerate}
-    \item \textbf{Validación Pedagógica (Éxito del Modelo):} El \textbf{Perfil Inversor (D)} confirmó la gran utilidad de la aplicación para resolver un problema real del mercado: el exceso de operativa (\textit{overtrading}) en inversores novatos. Valoró muy positivamente que el simulador penalice la especulación y premie la estrategia a largo plazo, validando así el núcleo didáctico del TFG.
-    
-    \item \textbf{Profesionalización de la Interfaz:} Gracias al feedback del \textbf{Perfil Experto (A)} y del \textbf{Diseñador (C)}, se elevó el estándar visual de la aplicación. Se optimizó el \textit{hero section} para maximizar el espacio útil y se refinó la terminología para eliminar anglicismos innecesarios, logrando un acabado más limpio y profesional.
-    
-    \item \textbf{Eliminación de Barreras de Entrada:} El \textbf{Perfil Novel (B)} permitió detectar y solucionar fricciones iniciales en la terminología financiera (Ticker, CAGR), haciendo la herramienta accesible para el público general.
-\end{enumerate}
+La estabilización final también exigió validar el sistema con \textbf{PostgreSQL} en Render. Esta comprobación fue especialmente relevante tras la expiración de una base de datos anterior, que obligó a crear una nueva instancia y a confirmar que la aplicación seguía comportándose correctamente con persistencia real.
 
-\subsection{Evolución del Producto (Mejoras Implementadas)}
-
-A raíz de este ciclo de validación, la versión final entregada incorpora las siguientes optimizaciones, cerrando el ciclo de mejora continua:
-
-\begin{table}[h]
-\centering
-\renewcommand{\arraystretch}{1.4}
-\begin{tabular}{|p{0.25\textwidth}|p{0.35\textwidth}|p{0.3\textwidth}|}
-\hline
-\textbf{Área de Mejora} & \textbf{Observación del Usuario} & \textbf{Solución Implementada} \\ \hline
-\textbf{Accesibilidad Cognitiva} & \textit{"El concepto de 'Ticker' puede ser confuso para no iniciados."} (Perfil Novel) & Integración de asistencia contextual y sugerencias de búsqueda en tiempo real. \\ \hline
-\textbf{Experiencia Móvil} & \textit{"La pantalla de inicio puede aprovechar mejor el espacio vertical."} (Perfil Diseño) & Rediseño del \textit{layout} principal para priorizar las llamadas a la acción (\textit{CTA}) críticas. \\ \hline
-\textbf{Claridad de Propuesta} & \textit{"Debe quedar claro que es un simulador profesional, no un juego."} (Perfil Experto) & Refinamiento del \textit{copywriting} en la \textit{landing page} para enfatizar el "Análisis Fundamental". \\ \hline
-\textbf{Refuerzo Positivo} & \textit{"Es vital enseñar que la inactividad a veces es la mejor estrategia."} (Perfil Inversor) & Ajuste en el sistema de puntuación del "Modo Carrera" para premiar la consistencia a largo plazo. \\ \hline
-\end{tabular}
-\caption{Matriz de mejoras implementadas tras la validación con usuarios.}
-\label{tab:usabilidad_feedback}
-\end{table}
-
-\subsection{Pruebas de Carga y Concurrencia (Accesibilidad del Servicio)}
-
-Para responder a la necesidad de estimar la capacidad real del servicio y determinar cuántos usuarios pueden acceder simultáneamente sin degradar la experiencia ("accesibilidad del servidor"), se realizaron pruebas de carga utilizando la herramienta \textbf{Locust} (ver archivo \texttt{locustfile.py} en el repositorio).
-
-Se configuró un escenario de estrés contra el entorno de producción en Render (Plan Gratuito) simulando el comportamiento típico de un usuario: navegar por la portada, consultar una empresa y generar una simulación.
+Las verificaciones realizadas sobre este entorno incluyeron:
 
 \begin{itemize}
-    \item \textbf{Umbral de Concurrencia:} El sistema mantiene tiempos de respuesta estables (<500ms) con hasta \textbf{50 usuarios concurrentes} realizando peticiones por segundo.
-    \item \textbf{Punto de Saturación:} A partir de 60-70 usuarios simultáneos, el servidor Gunicorn (limitado a 1 \textit{worker} por la memoria de 512MB) comienza a encolar peticiones, elevando la latencia por encima de los 2 segundos.
+    \item registro e inicio de sesión de usuarios reales;
+    \item persistencia del historial para usuario autenticado;
+    \item diferenciación correcta entre invitado y registrado;
+    \item acceso a sesiones del modo carrera;
+    \item mantenimiento del comportamiento esperado tras reinicios y nuevos despliegues.
 \end{itemize}
 
-Se concluye que la arquitectura actual garantiza la accesibilidad para un uso académico o de grupo pequeño, cumpliendo los requisitos iniciales, aunque para un despliegue masivo sería necesario escalar verticalmente la infraestructura.
+La comprobación satisfactoria de estos puntos permitió considerar resuelta la transición desde una base de datos previa caducada a una nueva configuración operativa en Render.
 
-\section{Revisión Presupuestaria}
+\section{Incidencia final de autenticación y corrección de navbar}
 
-Tras la finalización del desarrollo, se procede a comparar los costes estimados en la fase de planificación con los costes reales incurridos.
+Una de las últimas incidencias funcionales detectadas en producción se produjo tras verificar el inicio de sesión real con la nueva base de datos. Se comprobó que la sesión autenticada existía y que el contenido de ciertas pantallas reconocía al usuario, pero la barra de navegación de páginas internas seguía mostrando acciones propias de usuario anónimo, como \textit{Iniciar sesión} y \textit{Crear cuenta}.
 
-Debido a la naturaleza académica del proyecto y al uso de un modelo de desarrollo ágil personal, no se han producido desviaciones significativas en los costes directos. El uso del plan gratuito de Render \cite{render} ha permitido mantener el coste de infraestructura en 0 \,€, tal y como se planificó.
+El análisis permitió determinar que el problema no estaba en la autenticación en sí misma, sino en la condición de renderizado utilizada por la navbar. La corrección consistió en dar prioridad explícita al identificador de usuario autenticado frente al posible estado de invitado, evitando que un usuario ya autenticado heredase elementos visuales del flujo anónimo.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|r|r|}
-\hline
-\textbf{Concepto} & \textbf{Estimado} & \textbf{Real} & \textbf{Desviación} \\ \hline
-Recursos Humanos & 6.000 \,€ & 6.000 \,€ & 0\% \\ \hline
-Hardware & 80 \,€ & 80 \,€ & 0\% \\ \hline
-Infraestructura Cloud & 0 \,€ & 0 \,€ & 0\% \\ \hline
-\textbf{TOTAL} & \textbf{6.080 \,€} & \textbf{6.080 \,€} & \textbf{0\%} \\ \hline
-\end{tabular}
-\caption{Comparativa de costes estimados vs. reales.}
-\label{tab:reversion_costes}
-\end{table}
+Como refuerzo de esta corrección se añadieron pruebas de HTML renderizado sobre rutas internas reales:
 
-Se concluye que el proyecto ha sido económicamente viable y se ha ejecutado dentro de los márgenes presupuestarios establecidos.
+\begin{itemize}
+    \item \texttt{/nuevo-analisis}
+    \item \texttt{/aprende}
+    \item \texttt{/modo-carrera}
+    \item \texttt{/modo-horizonte}
+\end{itemize}
+
+El resultado final fue la desaparición correcta de los botones \textit{Iniciar sesión} y \textit{Crear cuenta} en contexto autenticado, manteniendo al mismo tiempo el comportamiento esperado para usuarios invitados. Tras esta corrección, la validación completa volvió a cerrarse con \textbf{29 pruebas superadas}.
+
+\section{Validación funcional del rediseño frontend}
+
+La validación del rediseño no se redujo a una única revisión estética, sino que se planteó como un proceso iterativo de comprobación de coherencia visual y de uso. A lo largo de las distintas fases se revisaron formularios, jerarquía de pantallas, mensajes, comportamiento responsive, tablas y flujos de acceso. Este proceso hizo posible detectar problemas reales que no se apreciaban con la mera inspección de código, especialmente en el entorno desplegado.
+
+Entre los aspectos verificados durante esta fase se encuentran:
+
+\begin{itemize}
+    \item coherencia entre pantallas principales;
+    \item simplificación del acceso y la navegación;
+    \item mejora del peso visual de los modos principales;
+    \item organización más clara del modo carrera;
+    \item integración prudente del modo horizonte;
+    \item correcciones de responsive en anchuras intermedias y móviles.
+\end{itemize}
+
+La consolidación del rediseño en \texttt{main}, junto con el etiquetado \texttt{v1.1-frontend-redesign}, permitió cerrar esta fase con una referencia estable del estado visual del producto.
+
+\section{Síntesis de resultados}
+
+Tomando en conjunto la validación automatizada, la revisión sobre Render, la integración con PostgreSQL y la corrección de incidencias reales, puede afirmarse que el sistema alcanzó un estado final técnicamente consistente para el alcance de un TFG. Más allá del cumplimiento funcional básico, se consiguió un cierre razonable en términos de estabilidad, coherencia de interfaz y trazabilidad del proceso de mejora.
