@@ -1,6 +1,75 @@
-\section{Validación técnica automatizada}
+\section{Estrategia de pruebas y validación técnica}
 
 La fase final del proyecto se apoyó en una estrategia de validación técnica automatizada orientada a garantizar que las modificaciones sobre el sistema no introdujeran regresiones funcionales ni inconsistencias de calidad. Para ello se consolidó una secuencia estable de comprobaciones ejecutada de forma recurrente antes de integrar cambios relevantes.
+
+
+
+La validación del proyecto no se limitó a comprobar que la aplicación arrancaba, sino que se orientó a verificar rutas, contratos de respuesta, persistencia, control de acceso y estabilidad de varios flujos críticos. Esta decisión fue especialmente importante en la fase final, cuando el sistema ya incluía autenticación, historial, modo carrera, modo horizonte, Tutor IA opcional y un rediseño visual consolidado.
+
+\subsection{Alcance real de la suite de 29 pruebas}
+
+La batería final ejecutada sobre el repositorio quedó compuesta por \textbf{29 pruebas automatizadas}. Aunque no cubre de forma exhaustiva todos los caminos posibles del producto, sí protege varios puntos críticos que el tribunal puede considerar relevantes para valorar la calidad del trabajo.
+
+Las pruebas pueden agruparse por módulos de la siguiente manera:
+
+\begin{itemize}
+    \item \textbf{Análisis y validación heurística:}
+    \texttt{tests/test\_analisis.py} verifica aceptación de análisis válidos, rechazo de payloads incompletos, horizonte mínimo y alertas por supuestos extremos.
+
+    \item \textbf{Persistencia e historial del modo práctica:}
+    \texttt{tests/test\_analisis\_storage.py}, \texttt{test\_analisis\_filtros.py}, \texttt{test\_analisis\_paginado.py} y \texttt{test\_analisis\_export\_csv.py} cubren guardado en historial, respuesta vacía segura, filtrado por ticker y fecha, metadatos de paginación y exportación CSV con cabeceras correctas.
+
+    \item \textbf{Datos de empresas y endpoints auxiliares:}
+    \texttt{tests/test\_empresas.py}, \texttt{test\_empresas\_busqueda.py}, \texttt{test\_empresas\_datos.py}, \texttt{test\_empresas\_filtro.py}, \texttt{test\_empresas\_paginado.py} y \texttt{test\_smoke.py} validan el catálogo de empresas, búsquedas, filtros sectoriales, paginación y disponibilidad básica de endpoints.
+
+    \item \textbf{Frontend renderizado y autenticación visible:}
+    \texttt{tests/test\_frontend.py} comprueba carga de la home, estado de la navbar para invitado, transición invitado $\rightarrow$ login real, limpieza de sesión tras logout y desaparición de acciones anónimas en páginas internas autenticadas.
+
+    \item \textbf{Salud operativa básica:}
+    \texttt{tests/test\_health.py} verifica la ruta de \textit{health check}.
+
+    \item \textbf{Robustez del informe de carrera:}
+    \texttt{tests/test\_career\_report.py} comprueba que el informe final sobrevive a pérdidas extremas y a escenarios con histórico incompleto, evitando colapsos del flujo final.
+\end{itemize}
+
+Esta distribución evidencia que la suite está orientada sobre todo a la robustez de rutas, persistencia y regresiones visibles del producto, más que a pruebas matemáticas exhaustivas de todos los algoritmos financieros internos.
+
+\subsection{Tabla de trazabilidad entre requisitos y pruebas}
+
+La Tabla~\ref{tab:trazabilidad-pruebas} resume cómo la validación automatizada cubre los requisitos funcionales y no funcionales más relevantes del sistema.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|p{0.16\textwidth}|p{0.34\textwidth}|p{0.34\textwidth}|}
+\hline
+\textbf{Requisito} & \textbf{Aspecto validado} & \textbf{Pruebas relacionadas} \\ \hline
+RF-01 Acceso y perfiles & Estado de sesión, invitado, login, logout y navbar & \texttt{test\_frontend.py} \\ \hline
+RF-02 Visualización y consulta de análisis & Respuestas válidas del análisis e historial asociado & \texttt{test\_analisis.py}, \texttt{test\_analisis\_storage.py} \\ \hline
+RF-03 Modo práctica & Validación de payload, filtros, paginación y CSV & \texttt{test\_analisis.py}, \texttt{test\_analisis\_filtros.py}, \texttt{test\_analisis\_paginado.py}, \texttt{test\_analisis\_export\_csv.py} \\ \hline
+RF-04 Modo carrera & Robustez del informe y escenarios límite & \texttt{test\_career\_report.py} \\ \hline
+RF-05 Readiness y progresión & Cobertura indirecta a través de acceso y sesión; sin suite específica exhaustiva & validación manual + rutas integradas \\ \hline
+RF-06 Modo horizonte & Cobertura principalmente manual; sin suite dedicada cerrada en la versión actual & validación manual en desarrollo y Render \\ \hline
+RF-07 Tutor IA opcional & Cobertura principal mediante hardening de backend/frontend y validación manual & validación manual + control de errores en código \\ \hline
+RNF-03 Calidad de código & Sintaxis, estilo, formato y ejecución de pruebas & \texttt{py\_compile}, \texttt{ruff}, \texttt{black --check}, \texttt{pytest} \\ \hline
+RNF-04 Integración continua & Ejecución automática en cada push y pull request & GitHub Actions \\ \hline
+\end{tabular}
+\caption{Trazabilidad resumida entre requisitos principales y mecanismos de validación.}
+\label{tab:trazabilidad-pruebas}
+\end{table}
+
+\subsection{Cobertura y límites de la estrategia de pruebas}
+
+La suite final protege varios riesgos reales, pero también presenta límites que conviene reconocer con honestidad:
+
+\begin{itemize}
+    \item no existe una batería completa de pruebas end-to-end con navegador real;
+    \item el modo horizonte y el Tutor IA dependen en mayor medida de validación manual y de endurecimiento del backend que de pruebas unitarias extensas;
+    \item la dependencia de Yahoo Finance dificulta construir pruebas totalmente aisladas del proveedor sin ampliar el sistema de dobles o fixtures de mercado.
+\end{itemize}
+
+Estas limitaciones no invalidan la calidad de la validación existente, pero sí delimitan con precisión su alcance real.
 
 Los comandos utilizados fueron los siguientes:
 

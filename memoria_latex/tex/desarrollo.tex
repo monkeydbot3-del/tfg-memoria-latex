@@ -1,21 +1,77 @@
-\section{Arquitectura funcional final del sistema}
+\section{Arquitectura técnica final del sistema}
 
-El resultado final del proyecto se materializa en una aplicación web desarrollada con \textbf{Flask}, concebida como herramienta educativa de simulación de inversión sobre datos históricos reales. La solución combina una capa de presentación basada en plantillas HTML renderizadas en servidor, una capa de lógica de aplicación en Python y una capa de persistencia orientada a soportar autenticación, historial y continuidad entre modos de uso.
+La versión final del proyecto se materializa en una aplicación web desarrollada con \textbf{Flask}, orientada a la simulación educativa de decisiones de inversión sobre datos históricos reales. Aunque desde el exterior la herramienta puede describirse en términos funcionales (registro, análisis, modos de simulación e informes), una de las observaciones recibidas durante la revisión de la memoria fue que esta explicación resultaba demasiado superficial para valorar adecuadamente el trabajo de ingeniería realizado. Por ello, en este capítulo se describe la implementación real de la aplicación a partir del código efectivamente entregado.
 
-Desde el punto de vista funcional, la aplicación se estructura alrededor de cuatro bloques principales: el acceso al sistema, el modo de práctica, el modo carrera y el modo horizonte. Sobre estos bloques se apoya una capa pedagógica adicional formada por la sección de aprendizaje, el \textit{readiness quiz} y el tutor de IA opcional asociado al informe final del modo carrera.
+La solución se organiza como una aplicación monolítica ligera de servidor, con renderizado HTML en backend, servicios auxiliares para persistencia y varios endpoints JSON consumidos por la interfaz dinámica. No se ha diseñado como una arquitectura distribuida ni como un sistema de microservicios, sino como una base única y coherente suficiente para el alcance de un TFG y compatible con un despliegue sencillo en Render.
 
-\subsection{Estructura general de la aplicación}
+\subsection{Stack tecnológico confirmado en el repositorio}
 
-La arquitectura implementada mantiene una separación clara entre responsabilidades:
+A partir de \texttt{requirements.txt}, de la estructura del código y de la configuración de ejecución, el stack técnico principal es el siguiente:
 
 \begin{itemize}
-    \item \textbf{Capa de presentación:} construida mediante plantillas \texttt{Jinja2}, hojas de estilo CSS personalizadas y componentes de interacción en JavaScript. Esta capa se encarga de la representación de pantallas, formularios, tablas y gráficos.
-    \item \textbf{Capa de control:} desarrollada en Flask mediante rutas y \textit{blueprints}. Gestiona el enrutamiento HTTP, la validación de entradas, la composición de respuestas HTML y JSON y la coordinación entre usuario, sesión y servicios de dominio.
-    \item \textbf{Capa de lógica de negocio:} concentra la simulación financiera, la gestión del modo carrera, la generación de métricas comparativas, la construcción del informe final y la preparación de escenarios experimentales en el modo horizonte.
-    \item \textbf{Capa de persistencia y servicios:} integra el acceso a PostgreSQL en Render, la autenticación por correo electrónico y contraseña, el historial de análisis, la persistencia de sesiones del modo carrera y los servicios auxiliares del sistema.
+    \item \textbf{Backend web:} Flask 3.1.2.
+    \item \textbf{Motor de plantillas:} Jinja2.
+    \item \textbf{Persistencia relacional:} PostgreSQL en producción mediante \texttt{DATABASE\_URL}.
+    \item \textbf{Capa ORM ligera:} Peewee 3.18.2.
+    \item \textbf{Manipulación de datos temporales y series:} pandas 2.3.3.
+    \item \textbf{Fuente de mercado:} yfinance 0.2.66 sobre Yahoo Finance.
+    \item \textbf{Gráficas e interacción en cliente:} JavaScript propio y Chart.js en frontend.
+    \item \textbf{Tutor IA opcional:} SDK \texttt{openai} 1.109.1, activado solo cuando existe \texttt{OPENAI\_API\_KEY}.
+    \item \textbf{Calidad y pruebas:} pytest, pytest-cov, ruff y black.
+    \item \textbf{Despliegue:} Gunicorn como servidor WSGI y Render como plataforma de alojamiento.
 \end{itemize}
 
-La estructura final no responde ya a un prototipo anónimo y efímero, sino a una solución web modular con diferenciación de usuarios, persistencia selectiva y validación progresiva del aprendizaje. Esta organización general puede observarse en la Figura~\ref{fig:arquitectura-final}, donde se representa la relación entre presentación, control, lógica de negocio y persistencia.
+Conviene subrayar que la aplicación no emplea \textbf{SQLAlchemy}. La persistencia se implementa con \textbf{Peewee}, lo que obliga a ser preciso en la memoria para no atribuir al proyecto tecnologías que no aparecen en el repositorio final.
+
+\subsection{Estructura real de carpetas}
+
+La organización del código en el repositorio principal \texttt{tfg-web-ci-python-bot} responde a una separación sencilla pero reconocible entre aplicación, servicios, datos locales, tests y documentación. Los elementos más relevantes son los siguientes:
+
+\begin{itemize}
+    \item \texttt{run.py}: punto de entrada WSGI. Importa \texttt{create\_app()} desde \texttt{app/\_\_init\_\_.py} y expone \texttt{app = create\_app()} para Gunicorn.
+    \item \texttt{app/\_\_init\_\_.py}: fábrica principal de aplicación, inicialización de base de datos, registro de \textit{blueprints}, gestión de \textit{context processor} y ciclo de conexión por petición.
+    \item \texttt{app/routes.py}: rutas HTML generales, endpoints JSON del modo práctica, readiness quiz, modo horizonte y Tutor IA.
+    \item \texttt{app/auth.py}: flujo de autenticación, registro, login, logout y entrada como invitado.
+    \item \texttt{app/career.py}: blueprint específico \texttt{/api/career} con la lógica principal del modo carrera, incluyendo creación de sesión, cierre de turnos, benchmark, informe, exportación y ranking.
+    \item \texttt{app/models.py}: definición de modelos Peewee persistidos en base de datos.
+    \item \texttt{app/db.py}: inicialización del \texttt{DatabaseProxy}, apertura y cierre de conexiones y lectura obligatoria de \texttt{DATABASE\_URL}.
+    \item \texttt{app/services/}: servicios auxiliares para autenticación, historial y persistencia profunda de sesiones de carrera.
+    \item \texttt{app/templates/}: plantillas Jinja2 para home, login, registro, historial, aprender, práctica, carrera y horizonte.
+    \item \texttt{app/static/}: CSS, JavaScript e imágenes del frontend.
+    \item \texttt{app/data/}: ficheros JSON auxiliares usados como almacenamiento operativo o ranking local, por ejemplo \texttt{career\_sessions.json}, \texttt{career\_ranking.json}, \texttt{empresas.json} y \texttt{analisis.json}.
+    \item \texttt{tests/}: batería de pruebas automatizadas del proyecto.
+    \item \texttt{.github/workflows/ci.yml}: pipeline de integración continua.
+\end{itemize}
+
+Esta estructura muestra una arquitectura de backend clásico renderizado en servidor, con apoyo de endpoints JSON para los flujos más interactivos. No existe una separación frontend/backend en repositorios independientes ni una API REST completa desacoplada del renderizado HTML.
+
+\subsection{Inicialización de la aplicación y flujo petición-respuesta}
+
+La fábrica \texttt{create\_app()} implementada en \texttt{app/\_\_init\_\_.py} realiza varios pasos críticos:
+
+\begin{enumerate}
+    \item comprueba que exista \texttt{SECRET\_KEY}; si falta, lanza \texttt{RuntimeError};
+    \item crea la aplicación Flask y almacena una versión de assets en \texttt{ASSET\_VERSION};
+    \item inicializa la base de datos mediante \texttt{init\_db()}, que exige \texttt{DATABASE\_URL};
+    \item registra un \textit{context processor} que inyecta \texttt{asset\_version} y \texttt{current\_user};
+    \item declara \texttt{@app.before\_request} para abrir conexión a base de datos;
+    \item declara \texttt{@app.teardown\_appcontext} para cerrarla al terminar la petición;
+    \item crea tablas con \texttt{database.create\_tables([...], safe=True)};
+    \item registra tres \textit{blueprints}: principal, autenticación y carrera.
+\end{enumerate}
+
+El flujo técnico de una petición típica puede resumirse así:
+
+\begin{enumerate}
+    \item el cliente accede a una ruta HTTP;
+    \item Flask resuelve el endpoint correspondiente;
+    \item antes de ejecutar la vista, se abre la conexión a base de datos;
+    \item la vista consulta la sesión Flask, valida datos y, si procede, invoca servicios o funciones de negocio;
+    \item se genera una respuesta HTML con Jinja2 o una respuesta JSON;
+    \item al cerrar el contexto de aplicación, la conexión se libera.
+\end{enumerate}
+
+Este mecanismo evita dejar conexiones abiertas entre peticiones y mantiene el ciclo de acceso a datos lo suficientemente claro para un despliegue sencillo.
 
 \begin{figure}[htbp]
     \centering
@@ -24,29 +80,163 @@ La estructura final no responde ya a un prototipo anónimo y efímero, sino a un
     \label{fig:arquitectura-final}
 \end{figure}
 
-\subsection{Módulos principales}
+\subsection{Renderizado servidor, Jinja2 y JavaScript cliente}
 
-Los módulos funcionales que articulan la aplicación son los siguientes:
+La interfaz no está construida como SPA completa. El sistema combina dos patrones:
 
 \begin{itemize}
-    \item \textbf{Inicio y acceso al sistema:} ofrece entrada mediante autenticación, registro o modo invitado.
-    \item \textbf{Aprender:} presenta contenidos introductorios, explica la lógica del simulador y sirve de antesala pedagógica al cuestionario de preparación.
-    \item \textbf{Readiness quiz:} evalúa conocimientos mínimos y actúa como mecanismo de desbloqueo del modo carrera.
-    \item \textbf{Modo Práctica:} permite realizar análisis puntuales de empresas y comparar resultados con referencias de mercado.
-    \item \textbf{Modo Carrera:} organiza una experiencia de simulación por turnos, con persistencia, informe final y continuidad pedagógica.
-    \item \textbf{Modo Horizonte:} genera una proyección experimental basada en patrones históricos, con advertencias explícitas y sin carácter predictivo.
-    \item \textbf{Tutor IA:} aporta una capa opcional de análisis educativo sobre el informe final del modo carrera.
+    \item \textbf{renderizado inicial en servidor} mediante plantillas Jinja2, empleado en pantallas como \texttt{home.html}, \texttt{login.html}, \texttt{register.html}, \texttt{career.html} o \texttt{horizon.html};
+    \item \textbf{interacción progresiva en cliente} mediante \texttt{app/static/app.js}, que consume endpoints JSON para actualizar gráficos, lanzar simulaciones, consultar informes o ejecutar acciones del modo carrera sin recargar toda la página.
 \end{itemize}
 
-\section{Gestión de usuarios y persistencia}
+Esta decisión simplifica el despliegue y reduce complejidad frente a una arquitectura de frontend independiente, pero obliga a cuidar la consistencia entre variables de sesión, renderizado HTML y lógica JavaScript. El hotfix final de la navbar autenticada es un ejemplo claro de esta dependencia entre renderizado servidor y estado de sesión.
 
-Una de las transformaciones más relevantes del proyecto durante su evolución fue el paso desde una experiencia esencialmente anónima a un modelo mixto que distingue entre \textbf{usuario registrado} y \textbf{usuario invitado}. Esta distinción afecta de manera directa a la persistencia del historial, la continuidad entre sesiones y el acceso a determinadas funcionalidades.
+\section{Persistencia, modelo de datos y gestión de usuarios}
 
-\subsection{Autenticación por correo electrónico}
+\subsection{Inicialización de base de datos y diferencia entre producción y CI}
 
-Se implementó un flujo de autenticación basado en correo electrónico y contraseña. La aplicación permite registrar cuentas, iniciar sesión, cerrar sesión y mantener el estado autenticado mediante la sesión de Flask. El almacenamiento de credenciales se realiza de forma segura mediante funciones de \textit{hash} de contraseña, evitando el almacenamiento en texto plano.
+La persistencia se inicializa en \texttt{app/db.py}. La función \texttt{init\_db()} exige \texttt{DATABASE\_URL}; si no existe, aborta el arranque. En producción la aplicación está pensada para trabajar con \textbf{PostgreSQL en Render}, mientras que en integración continua se usa \texttt{sqlite:///ci.db} como base de datos efímera de validación.
 
-Este modelo de acceso resuelve una limitación importante de las primeras versiones del sistema, en las que el uso sin identidad impedía conservar el historial y dificultaba la continuidad real de aprendizaje entre distintas visitas.
+Este punto es relevante porque permite distinguir entre dos usos distintos de la misma capa de persistencia:
+
+\begin{itemize}
+    \item \textbf{producción:} PostgreSQL real, persistente entre despliegues, con usuarios, historial y sesiones guardadas;
+    \item \textbf{CI:} SQLite local y desechable, suficiente para probar modelos y rutas sin requerir un servicio externo.
+\end{itemize}
+
+La decisión resulta coherente con el alcance del proyecto: PostgreSQL se reserva para el producto real y SQLite solo se utiliza como soporte técnico del pipeline automático.
+
+\subsection{Modelos persistidos en \texttt{app/models.py}}
+
+La aplicación define seis modelos principales con Peewee. Son precisamente los modelos que se crean explícitamente al arrancar la aplicación.
+
+\subsubsection{Modelo \texttt{User}}
+
+\texttt{User} representa la cuenta autenticada del sistema. Sus campos principales son:
+
+\begin{itemize}
+    \item \texttt{id}: clave primaria autonumérica.
+    \item \texttt{email}: correo único e indexado.
+    \item \texttt{username}: alias opcional mostrado en la interfaz.
+    \item \texttt{password\_hash}: hash de contraseña generado con Werkzeug.
+    \item \texttt{is\_active}: bandera de activación de cuenta.
+    \item \texttt{created\_at} y \texttt{updated\_at}: marcas temporales.
+\end{itemize}
+
+Su finalidad es servir de ancla para todo el contenido persistente asociado a un usuario real. El sistema no usa autenticación social, roles ni recuperación de contraseña, por lo que el modelo se mantiene deliberadamente mínimo.
+
+\subsubsection{Modelo \texttt{AnalysisHistory}}
+
+\texttt{AnalysisHistory} almacena el historial persistente del modo práctica. Se relaciona con \texttt{User} mediante una clave foránea y conserva:
+
+\begin{itemize}
+    \item el \texttt{ticker} analizado;
+    \item el payload de entrada serializado en \texttt{payload\_json};
+    \item el resultado serializado en \texttt{result\_json};
+    \item la fecha de creación.
+\end{itemize}
+
+La decisión de guardar los datos de entrada y salida en JSON, en lugar de descomponerlos por columnas analíticas, simplifica la persistencia de iteraciones del análisis sin tener que remodelar el esquema por cada ajuste del resultado.
+
+\subsubsection{Modelo \texttt{CareerSessionLink}}
+
+\texttt{CareerSessionLink} actúa como índice ligero de sesiones del modo carrera asociadas a un usuario. Incluye:
+
+\begin{itemize}
+    \item \texttt{user};
+    \item \texttt{session\_id} único;
+    \item nombre del jugador, dificultad y rango temporal resumido;
+    \item fechas de creación y actualización.
+\end{itemize}
+
+Su finalidad no es contener toda la simulación, sino permitir listados rápidos de sesiones recientes, carga de últimas partidas y navegación del historial de carrera por usuario.
+
+\subsubsection{Modelo \texttt{CareerSession}}
+
+\texttt{CareerSession} almacena una instantánea persistente de alto nivel de una partida de carrera. Sus campos clave son:
+
+\begin{itemize}
+    \item \texttt{session\_id} único;
+    \item \texttt{user};
+    \item \texttt{status};
+    \item \texttt{display\_name};
+    \item \texttt{period\_start} y \texttt{period\_end};
+    \item \texttt{current\_turn} y \texttt{total\_turns};
+    \item \texttt{latest\_snapshot\_json};
+    \item \texttt{metadata\_json};
+    \item fechas de creación y actualización.
+\end{itemize}
+
+Es el modelo que permite reanudar una sesión sin depender solo del fichero JSON operativo local.
+
+\subsubsection{Modelo \texttt{CareerTurn}}
+
+\texttt{CareerTurn} persiste el detalle por turno de una sesión de carrera. Se relaciona con \texttt{CareerSession} e incorpora:
+
+\begin{itemize}
+    \item \texttt{turn\_index};
+    \item \texttt{decision\_json};
+    \item \texttt{snapshot\_json};
+    \item \texttt{result\_json};
+    \item fechas de creación y actualización.
+\end{itemize}
+
+Además, define un índice único compuesto \texttt{(career\_session, turn\_index)} para impedir duplicados del mismo turno. Este modelo resulta esencial para explicar técnicamente al tribunal que el modo carrera no solo guarda una foto final, sino también el rastro de decisiones intermedias.
+
+\subsubsection{Modelo \texttt{ReadinessQuizResult}}
+
+\texttt{ReadinessQuizResult} conserva el estado del \textit{readiness quiz} para un usuario autenticado. Incluye:
+
+\begin{itemize}
+    \item referencia única al \texttt{user};
+    \item bandera \texttt{passed};
+    \item \texttt{score};
+    \item número total de preguntas;
+    \item fecha de aprobado;
+    \item respuestas serializadas en \texttt{answers\_json};
+    \item timestamps de control.
+\end{itemize}
+
+La unicidad sobre el usuario refleja la lógica de producto: lo relevante no es almacenar una lista ilimitada de intentos, sino el estado pedagógico actual que desbloquea el modo carrera.
+
+\subsection{Persistencia híbrida en el modo carrera}
+
+Una característica importante del proyecto es que el modo carrera utiliza una persistencia \textbf{híbrida}. La sesión activa se mantiene también en un almacén operativo local JSON (\texttt{app/data/career\_sessions.json}), mientras que la persistencia profunda para usuarios autenticados se apoya en PostgreSQL a través de \texttt{CareerSession}, \texttt{CareerTurn} y \texttt{CareerSessionLink}.
+
+Este diseño responde a una evolución incremental del módulo:
+
+\begin{itemize}
+    \item el fichero JSON permite conservar la operativa básica y servir como respaldo ligero;
+    \item la base de datos permite continuidad real entre visitas, listados por usuario y reanudación más robusta.
+\end{itemize}
+
+Desde un punto de vista académico, esta solución no es la más elegante posible, pero sí refleja una decisión de ingeniería pragmática: endurecer la persistencia sin reescribir por completo el motor ya funcional.
+
+\subsection{Usuario autenticado frente a invitado}
+
+La aplicación distingue con claridad dos contextos de uso:
+
+\begin{itemize}
+    \item \textbf{usuario autenticado:} puede guardar historial de análisis, conservar el estado del readiness quiz y persistir sesiones y turnos del modo carrera;
+    \item \textbf{usuario invitado:} puede explorar la aplicación y ejecutar simulaciones, pero no obtiene persistencia equivalente ni puede listar el historial protegido.
+\end{itemize}
+
+Esta diferenciación se implementa mediante la combinación de sesión Flask y persistencia relacional. La sesión contiene el estado de corto plazo; la base de datos, la continuidad a medio plazo.
+
+\section{Autenticación y gestión de sesión}
+
+\subsection{Registro, login y logout}
+
+El blueprint \texttt{app/auth.py} concentra el acceso autenticado. El flujo es directo:
+
+\begin{enumerate}
+    \item en registro, se validan email, longitud mínima de contraseña, coincidencia de confirmación y unicidad de correo;
+    \item si todo es correcto, \texttt{create\_user(...)} genera el usuario y almacena \texttt{password\_hash} con Werkzeug;
+    \item tras crear cuenta o tras login correcto, se limpia la sesión previa y se guarda \texttt{session["user\_id"]};
+    \item en logout se ejecuta \texttt{session.clear()}.
+\end{enumerate}
+
+No se emplea \texttt{Flask-Login}. El usuario actual se resuelve manualmente mediante \texttt{get\_user\_by\_id(...)} desde un \textit{context processor} global.
 
 \begin{figure}[h]
     \centering
@@ -55,116 +245,381 @@ Este modelo de acceso resuelve una limitación importante de las primeras versio
     \label{fig:login_final}
 \end{figure}
 
-\subsection{Usuario autenticado frente a usuario invitado}
+\subsection{Sesión Flask frente a persistencia en base de datos}
 
-El sistema final diferencia dos formas principales de uso:
-
-\begin{itemize}
-    \item \textbf{Usuario autenticado:} dispone de historial persistente, continuidad de progreso, conservación del aprobado del cuestionario y acceso estable a las sesiones del modo carrera.
-    \item \textbf{Usuario invitado:} puede explorar la aplicación sin crear cuenta, pero no conserva historial persistente entre sesiones y su uso queda acotado a una experiencia más limitada.
-\end{itemize}
-
-Esta separación resultó especialmente importante desde el punto de vista de producto, ya que permitió mantener una barrera de entrada baja sin renunciar a una capa real de continuidad para el usuario que decide implicarse más en la simulación.
-
-\subsection{Persistencia con PostgreSQL en Render}
-
-La persistencia final del sistema se apoya en una base de datos \textbf{PostgreSQL} desplegada en Render. Sobre ella se almacenan los elementos críticos de continuidad del sistema: usuarios, historial de análisis, resultados del \textit{readiness quiz} y sesiones persistentes del modo carrera.
-
-La capa de acceso se implementó mediante \textbf{Peewee}, lo que permitió mantener un modelo de datos ligero pero suficiente para el alcance del TFG. La decisión de utilizar PostgreSQL en producción sustituyó las limitaciones de un enfoque puramente efímero y permitió validar el producto en condiciones más cercanas a un despliegue real.
-
-Durante la fase final del proyecto se produjo además la expiración de una base de datos previa en Render. La creación de una nueva instancia y su integración satisfactoria en el sistema formó parte de la estabilización final del producto, validándose posteriormente el flujo de autenticación, la persistencia del historial y la navegación con usuario real.
-
-\subsection{Historial y continuidad funcional}
-
-El historial persistente quedó reservado al usuario autenticado. Esta decisión se mantuvo de forma coherente en todo el sistema:
+Es importante no confundir ambos niveles:
 
 \begin{itemize}
-    \item los análisis del modo práctica se asocian al usuario autenticado;
-    \item las sesiones y turnos del modo carrera pueden recuperarse en visitas posteriores;
-    \item el resultado del cuestionario de preparación puede conservarse en la cuenta;
-    \item el modo invitado mantiene una experiencia funcional, pero sin promesa de persistencia estable.
+    \item la \textbf{sesión Flask} guarda banderas de navegación y autenticación inmediata, por ejemplo \texttt{user\_id}, \texttt{guest} o el estado temporal del readiness quiz para invitado;
+    \item la \textbf{base de datos} almacena la información persistente que debe sobrevivir entre sesiones del navegador o nuevos despliegues.
 \end{itemize}
 
-\section{Flujo de acceso y progresión educativa}
+Esta distinción aparece varias veces en el comportamiento del sistema. Por ejemplo, un invitado puede haber aprobado temporalmente el readiness quiz en sesión, pero solo un usuario autenticado conserva ese aprobado de manera robusta en \texttt{ReadinessQuizResult}.
 
-La aplicación no se diseñó únicamente como una herramienta de consulta financiera, sino como un entorno de aprendizaje progresivo. Por ello, la navegación final se articula alrededor de una secuencia de acceso, comprensión y simulación.
+\subsection{Modo invitado y protección de rutas}
 
-\subsection{Inicio, registro y login}
+La ruta \texttt{/continuar-invitado} limpia la sesión e introduce \texttt{session["guest"] = True}. A partir de ahí, varias rutas utilizan comprobaciones como \texttt{\_is\_guest\_user()} o \texttt{\_current\_user\_id()} para decidir si se permite acceso.
 
-La página principal resume el sistema, sus modos de uso y las vías de acceso disponibles. Desde ella se puede continuar mediante registro, inicio de sesión o uso como invitado, dependiendo del perfil de usuario.
+Esto se aprecia de forma especialmente clara en \texttt{GET /analisis} y \texttt{GET /analisis.csv}:
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figs/home_final.png}
-    \caption{Pantalla principal final del sistema tras la consolidación del rediseño frontend.}
-    \label{fig:home_final}
-\end{figure}
+\begin{itemize}
+    \item invitado: respuesta \texttt{403};
+    \item anónimo no autenticado: respuesta \texttt{401};
+    \item autenticado: acceso permitido al historial persistido.
+\end{itemize}
 
-La combinación entre identidad visual renovada y claridad de acceso ayudó a convertir la página de inicio en un punto de entrada coherente con el resto del producto.
+El mismo patrón aparece en endpoints de sesiones guardadas del modo carrera, que exigen autenticación para consultar últimas sesiones, listados o turnos persistidos.
 
-\subsection{Aprender y readiness quiz}
+\subsection{Corrección final del estado de navbar}
 
-La sección \textit{Aprender} cumple una doble función. Por una parte, introduce conceptos básicos y contextualiza el uso del simulador; por otra, actúa como soporte previo al \textit{readiness quiz}, concebido como mecanismo de desbloqueo progresivo del modo carrera.
+Uno de los últimos fallos reales detectados consistió en que la navegación seguía mostrando opciones de anónimo tras un login válido en ciertas páginas internas. El problema no estaba en el login, sino en la condición de renderizado de \texttt{base.html}. La corrección final priorizó la presencia de \texttt{user\_id} autenticado frente a la bandera \texttt{guest}, con esta jerarquía lógica:
 
-Este cuestionario evita que el acceso al modo más complejo de la aplicación se produzca sin una base mínima de comprensión, reforzando el carácter pedagógico del sistema.
+\begin{itemize}
+    \item \texttt{\_is\_authenticated = \_user\_id is not none and \_user\_id != ''}
+    \item \texttt{\_is\_guest = (session.get('guest') and not \_is\_authenticated)}
+    \item \texttt{\_has\_account = \_is\_authenticated}
+\end{itemize}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figs/aprender_final.png}
-    \caption{Pantalla \textit{Aprender}, diseñada como apoyo pedagógico al cuestionario de preparación y al acceso progresivo al modo carrera.}
-    \label{fig:aprender_final}
-\end{figure}
+La incidencia es relevante porque demuestra una comprensión técnica importante para la defensa: en aplicaciones renderizadas en servidor, un bug de autenticación aparente puede ser en realidad un bug de presentación condicionado por el estado de sesión.
 
-\subsection{Desbloqueo progresivo del modo carrera}
+\section{Funcionamiento interno del modo práctica}
 
-El modo carrera se mantuvo como bloque funcional diferenciado y de mayor exigencia. Su desbloqueo condicionado por el cuestionario permitió reforzar la coherencia entre teoría y práctica, y ofreció una transición más razonable entre una exploración inicial y una experiencia de simulación prolongada.
+\subsection{Entrada, normalización y validación}
 
-\section{Módulos principales del sistema}
+El modo práctica está implementado principalmente en \texttt{app/routes.py} y se apoya visualmente en \texttt{analisis.html} y \texttt{app.js}. El flujo arranca en \texttt{POST /analisis} y \texttt{POST /api/propuestas}. Ambas rutas reciben un JSON, lo normalizan con \texttt{\_normalizar\_payload(...)} y lo procesan mediante \texttt{\_registrar\_analisis(...)}.
 
-\subsection{Modo Práctica o Nuevo análisis}
+La normalización realiza tareas como:
 
-El modo práctica constituye la puerta de entrada funcional más directa al sistema. Permite seleccionar un activo, configurar parámetros de análisis y obtener una visualización histórica junto con métricas comparativas. Durante el desarrollo final se mantuvo intacta la lógica de cálculo, pero se reorganizó la experiencia como un flujo guiado con pasos más legibles y consistentes.
+\begin{itemize}
+    \item convertir el ticker a mayúsculas;
+    \item transformar \texttt{importe\_inicial} y otros campos numéricos;
+    \item reconstruir el diccionario \texttt{supuestos};
+    \item forzar el modo a \texttt{DCA} o \texttt{SIN\_DCA};
+    \item limpiar fechas de inicio y fin.
+\end{itemize}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figs/practica_final.png}
-    \caption{Modo práctica rediseñado como flujo guiado de análisis sin alterar la lógica funcional del simulador.}
-    \label{fig:practica_final}
-\end{figure}
+Después, \texttt{\_validar\_payload(...)} comprueba la coherencia mínima del análisis: ticker presente, importe positivo, horizonte entero, porcentajes en rango, justificación suficiente y consistencia del bloque DCA cuando se solicita.
 
-Este modo cumple una función clave: familiariza al usuario con el lenguaje de la aplicación antes de avanzar hacia dinámicas más complejas.
+\subsection{Capa heurística y cálculo histórico real}
 
-\subsection{Modo Carrera}
+El análisis práctico combina dos capas distintas:
 
-El modo carrera organiza una simulación por turnos en la que el usuario configura una sesión, ajusta su cartera a lo largo del tiempo y recibe un informe final. A nivel técnico, este módulo fue uno de los más exigentes del proyecto, ya que combinó persistencia, generación de eventos, cálculos comparativos, continuidad temporal y tratamiento visual de estados muy diversos.
+\begin{enumerate}
+    \item una \textbf{capa heurística educativa}, implementada en \texttt{\_puntuar\_y\_observar(...)}, que genera puntuación, observaciones y resumen a partir de horizonte, ROE, deuda, margen de seguridad, crecimiento y calidad de la justificación;
+    \item una \textbf{capa de backtest histórico}, implementada en \texttt{\_market\_backtest\_core(...)}, que calcula el resultado real de una inversión usando precios ajustados y, opcionalmente, DCA.
+\end{enumerate}
 
-La evolución del sistema llevó este modo desde una versión inicial funcional pero limitada hasta una experiencia más madura, con mejor jerarquía visual, persistencia profunda y recuperación estable de sesiones guardadas.
+Esta separación es importante porque explica por qué el sistema puede seguir devolviendo un análisis útil aunque falle la descarga de mercado: la heurística y el backtest no son exactamente el mismo subsistema.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figs/carrera_setup_final.png}
-    \caption{Pantalla de configuración del modo carrera tras su rediseño visual y estabilización funcional.}
-    \label{fig:carrera_setup_final}
-\end{figure}
+\subsection{Descarga de datos con yfinance y control de errores}
 
-\subsection{Modo Horizonte}
+La función crítica de acceso a mercado es \texttt{\_download\_history\_df(ticker, start\_d, end\_d, include\_actions=True)}. Su comportamiento real es más sofisticado de lo que sugiere una descripción funcional superficial:
 
-El modo horizonte se incorporó como extensión experimental del ecosistema de simulación. Su finalidad no es predecir el mercado, sino construir un escenario hipotético a partir de patrones históricos. Por ello, se integró con advertencias explícitas, mensajes prudentes y una jerarquía visual que subraya su naturaleza educativa y no predictiva.
+\begin{itemize}
+    \item normaliza el ticker y construye mensajes diferenciados para ticker inválido y para limitación temporal del proveedor;
+    \item usa una caché en memoria basada en \texttt{TTLCache};
+    \item reintenta varias veces la descarga según \texttt{HORIZON\_HISTORY\_RETRY\_DELAYS\_SECONDS = (0.0, 0.8, 1.6)};
+    \item distingue entre respuesta vacía transitoria, \textit{rate limit} y error definitivo;
+    \item transforma los errores en \texttt{BacktestError} con códigos HTTP controlados.
+\end{itemize}
 
-Este módulo también se diseñó para poder continuar desde el contexto final del modo carrera, transportando la información necesaria para mantener continuidad conceptual entre ambos modos.
+El objetivo de este diseño es evitar dos problemas frecuentes en aplicaciones académicas con datos de mercado: confundir un ticker inexistente con un fallo temporal del proveedor, y propagar una excepción externa como error 500 sin explicación útil para el usuario.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figs/horizonte_final.png}
-    \caption{Modo horizonte como herramienta experimental de proyección educativa, sin carácter predictivo ni función de asesoramiento financiero.}
-    \label{fig:horizonte_final}
-\end{figure}
+\subsection{Cálculo del backtest}
 
-\subsection{Tutor IA}
+\texttt{\_market\_backtest\_core(...)} obtiene la serie histórica, extrae precios ajustados mediante \texttt{Adj Close} y calcula:
 
-Sobre el informe final del modo carrera se añadió un tutor de IA opcional. Su función no consiste en recomendar compras o ventas reales, sino en analizar de forma educativa la simulación realizada y ayudar a interpretar decisiones, resultados y riesgos observados durante la partida.
+\begin{itemize}
+    \item precio inicial cercano al inicio del rango;
+    \item precio final al cierre del rango;
+    \item número de participaciones equivalentes;
+    \item valor final de la posición;
+    \item ganancia o pérdida absoluta;
+    \item rentabilidad porcentual.
+\end{itemize}
 
-La integración de este componente se diseñó bajo restricciones claras: uso opcional, dependencia de clave de entorno, control de tiempos de respuesta y salida prudente, evitando que el sistema pudiera interpretarse como una herramienta de asesoramiento financiero automático.
+Si el modo es \texttt{DCA}, la función recorre además un calendario de aportaciones y compra participaciones adicionales en cada fecha válida. En modo \texttt{SIN\_DCA}, la inversión se considera concentrada en el primer punto de entrada disponible.
+
+\subsection{Resumen de precios, dividendos y datos auxiliares}
+
+La función \texttt{\_compute\_price\_summary(...)} amplía el resultado con:
+
+\begin{itemize}
+    \item precio inicial y final ajustado y sin ajustar;
+    \item variación porcentual ajustada y sin ajustar;
+    \item detección de dividendos en el rango;
+    \item precio actual aproximado mediante \texttt{fast\_info} si está disponible;
+    \item notas de degradación cuando faltan datos o se usa el último cierre como aproximación.
+\end{itemize}
+
+Este diseño da soporte tanto al resumen analítico como a la visualización modal del frontend.
+
+\subsection{Persistencia del historial}
+
+Tras calcular el análisis, \texttt{\_registrar\_analisis(...)} construye un registro con payload de entrada, puntuación, observaciones, resumen y snapshot del backtest. Si existe usuario autenticado y no invitado, el resultado se guarda con \texttt{save\_analysis\_for\_user(...)} en \texttt{AnalysisHistory}. Si el usuario es invitado, el análisis sigue siendo visible en la interacción actual, pero no se persiste en el historial protegido.
+
+\subsection{Limitaciones declaradas del modo práctica}
+
+Desde el punto de vista técnico y ético, el modo práctica tiene varias limitaciones que deben explicarse con claridad:
+
+\begin{itemize}
+    \item no ejecuta órdenes reales;
+    \item no intenta predecir precios futuros;
+    \item depende de un proveedor externo no controlado por el proyecto;
+    \item su evaluación heurística no sustituye análisis financiero profesional;
+    \item las fechas y precios históricos pueden presentar huecos o restricciones del proveedor.
+\end{itemize}
+
+\section{Funcionamiento interno del modo carrera}
+
+\subsection{Arquitectura general del módulo}
+
+El modo carrera se concentra en el blueprint \texttt{career\_bp = Blueprint("career", \_\_name\_\_, url\_prefix="/api/career")}, definido en \texttt{app/career.py}. Es el módulo más denso del sistema porque combina:
+
+\begin{itemize}
+    \item configuración inicial de partida;
+    \item generación de turnos temporales;
+    \item validación de asignaciones;
+    \item cálculo de retornos por activo;
+    \item capa de eventos simulados;
+    \item benchmark e informe final;
+    \item exportación y ranking;
+    \item persistencia híbrida en JSON y PostgreSQL.
+\end{itemize}
+
+\subsection{Creación de sesión y estructura temporal}
+
+La creación de partida se realiza en \texttt{POST /api/career/session}, implementada por \texttt{create\_session()}. El payload incluye, entre otros campos, \texttt{player}, \texttt{difficulty}, \texttt{universe}, \texttt{capital}, \texttt{period\_mode} y, opcionalmente, \texttt{period\_start} y \texttt{period\_end}.
+
+Las dificultades válidas son \texttt{principiante}, \texttt{intermedio} y \texttt{experto}. Cada una se apoya en \texttt{DIFFICULTY\_CONFIG}, que define años del periodo, duración de turnos y parámetros de shocks. El sistema construye un \texttt{session\_id} de tipo \texttt{car\_...}, calcula la división del rango temporal en turnos y genera la estructura interna de la sesión.
+
+\subsection{Turnos, asignaciones y cash implícito}
+
+Cada turno se cierra mediante \texttt{POST /api/career/turn}, procesado por \texttt{close\_turn()}. El payload contiene:
+
+\begin{itemize}
+    \item \texttt{session\_id};
+    \item \texttt{turn\_n};
+    \item \texttt{alloc}: lista de pesos por ticker;
+    \item \texttt{use\_dca}: bandera para aportación periódica.
+\end{itemize}
+
+La función valida que:
+
+\begin{itemize}
+    \item la sesión exista y sea accesible;
+    \item el turno pendiente coincida con el enviado;
+    \item no se exceda el número máximo de activos;
+    \item la suma de pesos no supere 1.0.
+\end{itemize}
+
+La parte no asignada de la cartera se interpreta como \textbf{cash implícito} con retorno 0.0. Además, el sistema reconoce tickers explícitos de caja como \texttt{CASH} o \texttt{CASH:USD}.
+
+\subsection{Retornos históricos por ticker}
+
+La función \texttt{\_returns\_by\_ticker(...)} calcula para cada activo el retorno del tramo histórico correspondiente, reutilizando las utilidades de mercado del modo práctica. El retorno se obtiene comparando el primer precio disponible al inicio del turno y el último precio disponible al final del tramo. Si falta histórico suficiente para alguno de los activos asignados, se lanza \texttt{NoHistoricalDataError}.
+
+Este punto es importante para la defensa porque muestra que el modo carrera no inventa precios de evolución principal: la base de cada turno sigue siendo histórico real de mercado.
+
+\subsection{Eventos simulados y capa pedagógica}
+
+Sobre el retorno histórico base, el módulo añade una \textbf{capa simulada de eventos}. El catálogo de eventos se define en \texttt{EVENTS\_CATALOG} y en \texttt{EVENTS\_BY\_DIFFICULTY}. Existen eventos de alcance:
+
+\begin{itemize}
+    \item \texttt{portfolio};
+    \item \texttt{sector};
+    \item \texttt{ticker}.
+\end{itemize}
+
+Cada evento puede introducir un impacto porcentual y una duración acotada en turnos. Desde el punto de vista conceptual, esto convierte el modo carrera en un sistema híbrido: el comportamiento general se apoya en precios históricos reales, pero la experiencia pedagógica se enriquece con perturbaciones controladas para obligar a interpretar contexto, riesgo y volatilidad.
+
+\subsection{Aportaciones DCA, capital e indicadores acumulados}
+
+Al cerrar un turno, el sistema actualiza magnitudes como:
+
+\begin{itemize}
+    \item \texttt{capital\_current};
+    \item \texttt{contrib\_so\_far};
+    \item \texttt{cum\_return};
+    \item \texttt{cum\_return\_net};
+    \item \texttt{pnl\_abs};
+    \item \texttt{pnl\_pct}.
+\end{itemize}
+
+La bandera \texttt{use\_dca} influye en la base de capital y en las aportaciones acumuladas, pero no altera artificialmente el retorno histórico puro del tramo de mercado. Esta separación mejora la interpretabilidad del informe final.
+
+\subsection{Benchmark, tracking y score}
+
+El benchmark real por defecto es \texttt{\^{}GSPC}. El informe final reutiliza varias funciones auxiliares:
+
+\begin{itemize}
+    \item \texttt{\_portfolio\_equity\_series(...)}: construye la serie base 100 del portfolio a partir de los turnos cerrados;
+    \item \texttt{\_compute\_metrics\_from\_base100(...)}: calcula \texttt{total\_return}, \texttt{CAGR}, \texttt{vol\_annual} y \texttt{max\_drawdown};
+    \item \texttt{\_compute\_benchmark\_package(...)}: obtiene la serie y métricas del benchmark;
+    \item \texttt{\_tracking\_summary(...)}: calcula \texttt{active\_return}, \texttt{tracking\_error} e \texttt{information\_ratio};
+    \item \texttt{\_compute\_score\_payload(...)}: genera un score sintético basado en CAGR, drawdown, tracking error y rotación.
+\end{itemize}
+
+La ponderación del score es explícita en el código: 45\% CAGR, 25\% control de drawdown, 20\% tracking error y 10\% turnover medio.
+
+\subsection{Informe final, series y exportación}
+
+Los endpoints más relevantes del informe son:
+
+\begin{itemize}
+    \item \texttt{GET /api/career/report/<session\_id>};
+    \item \texttt{GET /api/career/series/<session\_id>};
+    \item \texttt{GET /api/career/benchmark/<session\_id>};
+    \item \texttt{GET /api/career/export/<session\_id>};
+    \item \texttt{GET /api/career/theoretical/<session\_id>}.
+\end{itemize}
+
+\texttt{\_generate\_report\_payload(...)} compone la respuesta integrando métricas de portfolio, benchmark, tracking, score, turnos, advertencias de datos y, cuando es posible, un análisis teórico de combinaciones del universo de activos.
+
+\subsection{Persistencia y reanudación de sesiones}
+
+Para usuarios autenticados, las funciones \texttt{save\_career\_session\_for\_user(...)}, \texttt{upsert\_career\_session\_state(...)} y \texttt{save\_career\_turn\_state(...)} permiten persistir tanto la instantánea de sesión como el detalle por turno. A partir de ahí, endpoints como \texttt{/session/latest}, \texttt{/session/<id>} o \texttt{/session/<id>/turns} permiten recuperar partidas previas.
+
+La diferencia entre lógica de simulación y presentación visual también es clara aquí: el backend construye series, métricas y snapshots; el frontend solo decide cómo mostrarlos en plantillas, tablas y gráficos.
+
+\section{Funcionamiento interno del modo horizonte}
+
+\subsection{Objetivo técnico del módulo}
+
+El modo horizonte no pretende extender linealmente el backtest ni hacer una predicción probabilística formal. Su objetivo es construir un \textbf{escenario experimental futuro} a partir de patrones históricos remezclados. Se implementa principalmente en \texttt{/modo-horizonte}, \texttt{/api/horizon/from-career/<session\_id>} y \texttt{/api/horizon/simulate}.
+
+\subsection{Datos utilizados y proceso de cálculo}
+
+El endpoint \texttt{POST /api/horizon/simulate} recibe activos, pesos, horizonte temporal e importe inicial. Después:
+
+\begin{enumerate}
+    \item normaliza activos y pesos;
+    \item limita el número de activos por versión;
+    \item calcula cuántos años históricos necesita según el horizonte solicitado;
+    \item descarga histórico de precios para cada ticker con la misma infraestructura endurecida de mercado;
+    \item extrae una serie mensual de retornos;
+    \item descarta activos con muestra insuficiente;
+    \item combina las series válidas según pesos normalizados;
+    \item muestrea aleatoriamente retornos mensuales del histórico combinado para construir la trayectoria futura.
+\end{enumerate}
+
+Por tanto, el algoritmo no extrapola una recta ni aplica un modelo econométrico predictivo: remezcla retornos observados para generar una trayectoria hipotética coherente con el carácter experimental del módulo.
+
+\subsection{Controles de prudencia y limitaciones}
+
+El código incorpora varias salvaguardas para evitar resultados absurdos o una falsa apariencia de predicción:
+
+\begin{itemize}
+    \item disclaimer obligatorio y repetido en la respuesta;
+    \item descripción metodológica explícita en \texttt{HORIZON\_METHOD\_DESCRIPTION};
+    \item límite de activos;
+    \item necesidad de historial suficientemente amplio;
+    \item downsampling de series históricas para visualización;
+    \item clamping de retornos mensuales extremos a \(\pm 35\%\).
+\end{itemize}
+
+El propio payload final devuelve una nota clara indicando que el resultado corresponde a una trayectoria generada aleatoriamente y que no representa una previsión fiable del futuro.
+
+\subsection{Errores controlados y continuidad desde carrera}
+
+Si el usuario accede desde una sesión de carrera, \texttt{/api/horizon/from-career/<session\_id>} intenta reutilizar la última asignación conocida, pesos y valor final de cartera. Cuando el proveedor falla o la muestra histórica no es suficiente, el módulo responde con mensajes controlados y, si procede, con estado \texttt{503} para reflejar limitación temporal del proveedor.
+
+\section{Tutor IA educativo: arquitectura y flujo real}
+
+\subsection{Activación y disponibilidad}
+
+El Tutor IA aparece únicamente en el contexto del informe final del modo carrera y depende de dos condiciones técnicas:
+
+\begin{itemize}
+    \item que el despliegue tenga \texttt{OPENAI\_API\_KEY};
+    \item que el paquete \texttt{openai} esté disponible e importado correctamente.
+\end{itemize}
+
+La comprobación se realiza en \texttt{\_ai\_tutor\_is\_configured()}, consumida por \texttt{GET /api/ai/status}. Por tanto, el frontend puede saber si el tutor debe mostrarse como disponible antes de lanzar la petición principal.
+
+\subsection{Endpoint principal y precondiciones}
+
+El análisis se lanza con \texttt{POST /api/ai/career-analysis/<session\_id>}. Este endpoint no analiza texto libre ni una cartera inventada por el usuario: exige una sesión de carrera existente y accesible. Además, antes de llamar al modelo comprueba que exista un informe base de la carrera y que la sesión tenga turnos suficientes para generar un análisis útil.
+
+Las precondiciones controladas en el endpoint son:
+
+\begin{itemize}
+    \item configuración del proveedor IA;
+    \item existencia del informe de carrera;
+    \item accesibilidad de la sesión;
+    \item presencia de turnos y métricas mínimas.
+\end{itemize}
+
+Si alguna falla, el backend devuelve errores JSON tipificados como \texttt{ai\_not\_configured}, \texttt{career\_report\_unavailable}, \texttt{session\_not\_found} o \texttt{insufficient\_session\_data}.
+
+\subsection{Datos enviados al modelo y datos que no se envían}
+
+La función \texttt{\_build\_career\_ai\_payload(...)} extrae un resumen acotado del informe final. Entre los datos enviados se encuentran:
+
+\begin{itemize}
+    \item identificador de sesión;
+    \item dificultad;
+    \item rango histórico;
+    \item alias del jugador, si existe;
+    \item tickers utilizados;
+    \item asignación más reciente;
+    \item turnos totales y cerrados;
+    \item valor inicial, valor final, aportado e indicadores de PnL;
+    \item métricas del portfolio;
+    \item métricas del benchmark;
+    \item métricas de tracking;
+    \item score y advertencias.
+\end{itemize}
+
+Por el contrario, no se envían credenciales del usuario, hash de contraseña, email, sesión Flask completa ni histórico personal ajeno al informe analizado. El diseño intenta minimizar el volumen de datos compartidos y limitarse al contexto educativo de esa simulación concreta.
+
+\subsection{Construcción del prompt y restricciones impuestas}
+
+La función \texttt{\_generate\_career\_ai\_analysis(...)} construye dos mensajes:
+
+\begin{itemize}
+    \item un \textbf{system prompt} que obliga al modelo a actuar como tutor educativo, en español, sin asesoramiento financiero real, sin recomendación de compra/venta y con disclaimer literal obligatorio;
+    \item un \textbf{user prompt} que inserta el payload resumido de la simulación y reitera que, si faltan datos, debe decirlo explícitamente.
+\end{itemize}
+
+Además, la salida exigida al modelo es \textbf{JSON válido} con claves cerradas: \texttt{summary}, \texttt{strengths}, \texttt{improvements}, \texttt{benchmark\_analysis}, \texttt{risk\_notes}, \texttt{historical\_context}, \texttt{learning\_recommendations}, \texttt{final\_advice} y \texttt{disclaimer}.
+
+Esta restricción es relevante técnicamente porque reduce ambigüedad de parseo y facilita un renderizado seguro en frontend.
+
+\subsection{Timeout y gestión de errores}
+
+El cliente OpenAI se instancia con timeout explícito a partir de \texttt{OPENAI\_TIMEOUT\_SECONDS}, cuyo valor por defecto en el repositorio es 18 segundos. Si la llamada excede ese tiempo, el endpoint traduce la situación a un error \texttt{504} con tipo \texttt{ai\_timeout}. Otros errores diferenciados son:
+
+\begin{itemize}
+    \item \texttt{ai\_parse\_error} cuando la respuesta del proveedor no puede interpretarse con seguridad;
+    \item \texttt{ai\_analysis\_error} para fallos externos o de análisis no clasificados;
+    \item \texttt{ai\_not\_configured} cuando no existe clave o SDK operativo.
+\end{itemize}
+
+El backend añade también banderas como \texttt{retryable} para indicar si la incidencia tiene sentido como reintento posterior.
+
+\subsection{Renderizado en frontend y seguridad}
+
+En frontend, \texttt{app/static/app.js} usa funciones como \texttt{fetchCareerAiStatus()}, \texttt{runCareerAiAnalysis()} y \texttt{renderCareerAiSections(payload)}. Tras una incidencia real previa, el renderizado se endureció con \texttt{escapeHtml(value)} y normalizadores de contenido para evitar insertar texto arbitrario del proveedor sin escape previo.
+
+Desde el punto de vista de seguridad de la interfaz, este detalle es importante: aunque el backend solicite JSON estructurado, el contenido textual sigue tratándose como no confiable hasta ser escapado explícitamente antes de llegar a \texttt{innerHTML}.
+
+\subsection{Límites éticos y legales}
+
+El Tutor IA no se presenta como asesor automático ni como predicción de mercado. Sus límites están codificados de forma explícita en el prompt y en el disclaimer final. Su función es ayudar a interpretar una simulación histórica ya cerrada, no orientar decisiones financieras reales. En términos de responsabilidad académica, esto lo sitúa como una capa opcional de explicación pedagógica y no como el núcleo decisor del sistema.
+
+\section{Yahoo Finance y yfinance como dependencia externa}
+
+La app depende intensamente de Yahoo Finance a través de \texttt{yfinance}. Esta dependencia afecta al modo práctica, al modo carrera y al modo horizonte. La ventaja principal es disponer de un acceso relativamente simple a series históricas sin necesidad de un proveedor comercial. La desventaja es que el proyecto queda expuesto a:
+
+\begin{itemize}
+    \item límites temporales del proveedor;
+    \item respuestas vacías o inconsistentes;
+    \item tickers retirados o sin cobertura;
+    \item cambios externos no controlados por el desarrollador.
+\end{itemize}
+
+La mitigación adoptada fue pragmática: reintentos, caché en memoria, mensajes diferenciados, degradación amable y separación entre error de proveedor y ticker inválido. No existe una infraestructura de caché persistente compleja, por lo que esta sigue siendo una dependencia frágil del sistema entregado.
 
 \section{Rediseño frontend por fases}
 
