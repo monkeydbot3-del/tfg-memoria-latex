@@ -110,6 +110,26 @@ La decisión resulta coherente con el alcance del proyecto: PostgreSQL se reserv
 
 La aplicación define seis modelos principales con Peewee. Son precisamente los modelos que se crean explícitamente al arrancar la aplicación.
 
+La Figura~\ref{fig:er-peewee-postgresql} resume la estructura relacional persistida en PostgreSQL para usuarios autenticados. No pretende representar el store operativo temporal del modo carrera, sino la capa persistente real que el backend crea mediante Peewee.
+
+\begin{figure}[htbp]
+    \centering
+    \fbox{\parbox{0.95\textwidth}{\small
+    \textbf{Diagrama entidad-relación real (fuente Mermaid: \texttt{figs/er\_postgresql\_peewee.mmd})}\\[0.4em]
+    \texttt{User (PK id, email unique)}\\
+    \hspace*{1em}$\rightarrow$ 1:N \texttt{AnalysisHistory (FK user\_id)}\\
+    \hspace*{1em}$\rightarrow$ 1:1 \texttt{ReadinessQuizResult (FK user\_id unique)}\\
+    \hspace*{1em}$\rightarrow$ 1:N \texttt{CareerSessionLink (FK user\_id)}\\
+    \hspace*{1em}$\rightarrow$ 1:N \texttt{CareerSession (FK user\_id)}\\[0.4em]
+    \texttt{CareerSession (PK id, session\_id unique)}\\
+    \hspace*{1em}$\rightarrow$ 1:N \texttt{CareerTurn (FK career\_session\_id)}\\[0.4em]
+    El modo invitado no crea registros en estas tablas; usa solo sesión Flask y estado temporal del flujo.}}
+    \caption{Diagrama entidad-relación real de la persistencia principal del sistema con Peewee y PostgreSQL.}
+    \label{fig:er-peewee-postgresql}
+\end{figure}
+
+Además, se adjunta la fuente documental del diagrama en Mermaid como apoyo de trazabilidad técnica en \texttt{memoria\_latex/figs/er\_postgresql\_peewee.mmd}. Debe remarcarse que el modo invitado no crea registros en estas tablas: su estado vive en sesión Flask y en estructuras temporales del flujo actual.
+
 \subsubsection{Modelo \texttt{User}}
 
 \texttt{User} representa la cuenta autenticada del sistema. Sus campos principales son:
@@ -480,7 +500,28 @@ Los endpoints más relevantes del informe son:
 
 Para usuarios autenticados, las funciones \texttt{save\_career\_session\_for\_user(...)}, \texttt{upsert\_career\_session\_state(...)} y \texttt{save\_career\_turn\_state(...)} permiten persistir tanto la instantánea de sesión como el detalle por turno. A partir de ahí, endpoints como \texttt{/session/latest}, \texttt{/session/<id>} o \texttt{/session/<id>/turns} permiten recuperar partidas previas.
 
-La diferencia entre lógica de simulación y presentación visual también es clara aquí: el backend construye series, métricas y snapshots; el frontend solo decide cómo mostrarlos en plantillas, tablas y gráficos.
+La Figura~\ref{fig:secuencia-modo-carrera} sintetiza este flujo interno desde la configuración de la sesión hasta el informe final. Se observa que la experiencia visible del usuario depende de varios niveles coordinados: frontend, backend Flask, persistencia con Peewee y acceso a histórico de mercado con yfinance.
+
+\begin{figure}[htbp]
+    \centering
+    \fbox{\parbox{0.96\textwidth}{\small
+    \textbf{Secuencia técnica del modo carrera (fuente Mermaid: \texttt{figs/secuencia\_modo\_carrera.mmd})}\\[0.4em]
+    Usuario $\rightarrow$ Frontend: configura dificultad, universo, capital y periodo.\\
+    Frontend $\rightarrow$ Flask \texttt{career.py}: \texttt{POST /api/career/session}.\\
+    Flask $\rightarrow$ Peewee/PostgreSQL: crea o actualiza \texttt{CareerSessionLink} y \texttt{CareerSession}.\\
+    Usuario $\rightarrow$ Frontend: envía asignación del turno y \texttt{use\_dca}.\\
+    Frontend $\rightarrow$ Flask \texttt{career.py}: \texttt{POST /api/career/turn}.\\
+    Flask $\rightarrow$ yfinance/cache: obtiene precios ajustados, benchmark y series.\\
+    Flask $\rightarrow$ Flask: valida alloc, cash implícito, DCA, eventos y métricas.\\
+    Flask $\rightarrow$ Peewee/PostgreSQL: guarda \texttt{CareerTurn} y snapshot actualizado.\\
+    Frontend $\rightarrow$ Flask: solicita informe final, benchmark y series.\\
+    Flask $\rightarrow$ Peewee/PostgreSQL y mercado: resuelve sesión persistida, turnos y benchmark.\\
+    Flask $\rightarrow$ Frontend: devuelve score, portfolio, benchmark, tracking y warnings.}}
+    \caption{Secuencia técnica simplificada del modo carrera, desde la creación de sesión hasta el informe final.}
+    \label{fig:secuencia-modo-carrera}
+\end{figure}
+
+La diferencia entre lógica de simulación y presentación visual también es clara aquí: el backend construye series, métricas y snapshots; el frontend solo decide cómo mostrarlos en plantillas, tablas y gráficos. La fuente documental del diagrama se conserva en \texttt{memoria\_latex/figs/secuencia\_modo\_carrera.mmd}.
 
 \section{Funcionamiento interno del modo horizonte}
 
@@ -602,7 +643,27 @@ El backend añade también banderas como \texttt{retryable} para indicar si la i
 
 En frontend, \texttt{app/static/app.js} usa funciones como \texttt{fetchCareerAiStatus()}, \texttt{runCareerAiAnalysis()} y \texttt{renderCareerAiSections(payload)}. Tras una incidencia real previa, el renderizado se endureció con \texttt{escapeHtml(value)} y normalizadores de contenido para evitar insertar texto arbitrario del proveedor sin escape previo.
 
-Desde el punto de vista de seguridad de la interfaz, este detalle es importante: aunque el backend solicite JSON estructurado, el contenido textual sigue tratándose como no confiable hasta ser escapado explícitamente antes de llegar a \texttt{innerHTML}.
+La Figura~\ref{fig:secuencia-tutor-ia} resume el flujo técnico completo del Tutor IA, incluyendo validación de entorno, preparación del payload, llamada al proveedor y tratamiento controlado de errores o timeouts.
+
+\begin{figure}[htbp]
+    \centering
+    \fbox{\parbox{0.96\textwidth}{\small
+    \textbf{Secuencia técnica del Tutor IA (fuente Mermaid: \texttt{figs/secuencia\_tutor\_ia.mmd})}\\[0.4em]
+    Usuario $\rightarrow$ Frontend: pulsa \textit{Analizar con Tutor IA}.\\
+    Frontend $\rightarrow$ Flask \texttt{routes.py}: \texttt{POST /api/ai/career-analysis/<session\_id>}.\\
+    Flask $\rightarrow$ sesión/informe: valida acceso, existencia de informe y datos mínimos.\\
+    Flask $\rightarrow$ Flask: comprueba \texttt{OPENAI\_API\_KEY} y SDK.\\
+    Flask $\rightarrow$ sesión/informe: construye payload resumido con métricas, turnos y warnings.\\
+    Flask $\rightarrow$ Flask: genera prompt educativo con restricciones y disclaimer.\\
+    Flask $\rightarrow$ proveedor IA: llamada con timeout y salida JSON esperada.\\
+    Si la llamada falla, el backend devuelve error controlado \texttt{503/504/502/422}.\\
+    Si la llamada es válida, el backend sanea, parsea y normaliza la respuesta.\\
+    Frontend renderiza el resultado con \texttt{escapeHtml(...)} y bloques seguros, sin romper el informe principal.}}
+    \caption{Secuencia técnica del Tutor IA educativo sobre el informe final del modo carrera.}
+    \label{fig:secuencia-tutor-ia}
+\end{figure}
+
+Desde el punto de vista de seguridad de la interfaz, este detalle es importante: aunque el backend solicite JSON estructurado, el contenido textual sigue tratándose como no confiable hasta ser escapado explícitamente antes de llegar a \texttt{innerHTML}. La fuente documental del diagrama se conserva en \texttt{memoria\_latex/figs/secuencia\_tutor\_ia.mmd}.
 
 \subsection{Límites éticos y legales}
 
@@ -620,6 +681,8 @@ La app depende intensamente de Yahoo Finance a través de \texttt{yfinance}. Est
 \end{itemize}
 
 La mitigación adoptada fue pragmática: reintentos, caché en memoria, mensajes diferenciados, degradación amable y separación entre error de proveedor y ticker inválido. No existe una infraestructura de caché persistente compleja, por lo que esta sigue siendo una dependencia frágil del sistema entregado.
+
+En términos de tribunal, esto significa que la simulación no puede describirse como un motor aislado de laboratorio: depende de una fuente externa real, con todas las implicaciones de disponibilidad, calidad de datos y rate limiting que eso conlleva. Precisamente por ello se añadieron mecanismos explícitos de endurecimiento, en lugar de ocultar el problema bajo errores genéricos.
 
 \section{Rediseño frontend por fases}
 

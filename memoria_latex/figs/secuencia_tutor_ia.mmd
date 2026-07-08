@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant U as Usuario
+    participant F as Frontend career UI
+    participant B as Flask routes.py
+    participant S as Informe de carrera / sesión
+    participant O as Proveedor IA OpenAI
+    participant R as Render seguro UI
+
+    U->>F: Pulsa "Analizar con Tutor IA"
+    F->>B: POST /api/ai/career-analysis/<session_id>
+    B->>S: Validar acceso, sesión e informe disponibles
+    B->>B: Comprobar OPENAI_API_KEY y SDK
+    B->>S: Construir payload resumido de la simulación
+    B->>B: Generar prompt educativo con restricciones y disclaimer
+    B->>O: Llamada con timeout y salida JSON esperada
+    alt Respuesta válida
+        O-->>B: JSON o texto parseable
+        B->>B: Sanear, parsear y normalizar secciones
+        B-->>R: JSON estructurado para frontend
+        R-->>F: Render con escapeHtml y bloques seguros
+        F-->>U: Mostrar análisis educativo del informe final
+    else Sin API key o proveedor falla
+        O-->>B: timeout / error / respuesta inválida
+        B-->>R: Error controlado 503/504/502/422
+        R-->>F: Mostrar indisponibilidad o error recuperable
+        F-->>U: No se rompe la pantalla ni el informe principal
+    end
+
+%% Nota documental: se envían métricas y contexto de la simulación, no credenciales, email ni sesión Flask completa.

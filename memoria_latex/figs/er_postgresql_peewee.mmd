@@ -1,0 +1,78 @@
+erDiagram
+    User ||--o{ AnalysisHistory : guarda
+    User ||--|| ReadinessQuizResult : desbloquea
+    User ||--o{ CareerSessionLink : indexa
+    User ||--o{ CareerSession : persiste
+    CareerSession ||--o{ CareerTurn : contiene
+
+    User {
+        int id PK
+        string email UK
+        string username
+        string password_hash
+        bool is_active
+        datetime created_at
+        datetime updated_at
+    }
+
+    AnalysisHistory {
+        int id PK
+        int user_id FK
+        string ticker
+        text payload_json
+        text result_json
+        datetime created_at
+    }
+
+    ReadinessQuizResult {
+        int id PK
+        int user_id FK_UNIQUE
+        bool passed
+        int score
+        int total_questions
+        datetime passed_at
+        text answers_json
+        datetime created_at
+        datetime updated_at
+    }
+
+    CareerSessionLink {
+        int id PK
+        int user_id FK
+        string session_id UK
+        string player
+        string difficulty
+        date period_start
+        date period_end
+        datetime created_at
+        datetime updated_at
+    }
+
+    CareerSession {
+        int id PK
+        int user_id FK
+        string session_id UK
+        string status
+        string display_name
+        date period_start
+        date period_end
+        int current_turn
+        int total_turns
+        text latest_snapshot_json
+        text metadata_json
+        datetime created_at
+        datetime updated_at
+    }
+
+    CareerTurn {
+        int id PK
+        int career_session_id FK
+        int turn_index
+        text decision_json
+        text snapshot_json
+        text result_json
+        datetime created_at
+        datetime updated_at
+    }
+
+%% Nota documental: el modo invitado no crea registros en estas tablas; usa solo sesión Flask y store operativo temporal.

@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant U as Usuario
+    participant F as Frontend app.js
+    participant C as Flask career.py
+    participant P as Persistencia Peewee/PostgreSQL
+    participant M as Mercado yfinance/cache
+    participant R as Respuesta JSON/UI
+
+    U->>F: Configura dificultad, universo, capital y periodo
+    F->>C: POST /api/career/session
+    C->>P: Crear o actualizar CareerSessionLink y CareerSession
+    C-->>R: Devolver snapshot inicial, turnos y metadatos
+    R-->>F: Renderizar setup y sesión activa
+
+    U->>F: Envía asignación del turno y use_dca
+    F->>C: POST /api/career/turn
+    C->>M: Leer precios ajustados, benchmark y series necesarias
+    M-->>C: Series históricas o error controlado
+    C->>C: Validar alloc, cash implícito, DCA, eventos y métricas
+    C->>P: Guardar CareerTurn y snapshot actualizado
+    C-->>R: Resultado de turno, cartera, benchmark y estado
+    R-->>F: Actualizar tablas, gráficas y progreso
+
+    U->>F: Solicita informe final / benchmark / series
+    F->>C: GET /api/career/report/<session_id> y auxiliares
+    C->>P: Resolver sesión persistida y turnos guardados
+    C->>M: Obtener benchmark o series si hacen falta
+    C->>C: Generar score, tracking, warnings e informe final
+    C-->>R: Payload final con portfolio, benchmark y score
+    R-->>F: Render seguro del informe final
+
+%% Nota documental: el modo carrera usa persistencia híbrida; el invitado puede jugar, pero no conserva este rastro relacional.
