@@ -320,7 +320,7 @@ pdfauthor=\@author}
   breaklines=true,inputencoding=utf8,
   frame=single,showstringspaces=false,
   style=nonumbers,extendedchars=true,
-  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1,
+  literate={á}{{á}}1 {é}{{é}}1 {í}{{í}}1 {ó}{{ó}}1 {ú}{{ú}}1 {Á}{{Á}}1 {É}{{É}}1 {Í}{{Í}}1 {Ó}{{Ó}}1 {Ú}{{Ú}}1 {ñ}{{ñ}}1 {Ñ}{{Ñ}}1,
 }
 
 \definecolor{enlaces}{rgb}{0.6,0.6,0.9}
@@ -346,7 +346,7 @@ pdfauthor=\@author}
 \lstset{
     inputencoding=utf8,
     extendedchars=true,
-    literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+    literate={á}{{á}}1 {é}{{é}}1 {í}{{í}}1 {ó}{{ó}}1 {ú}{{ú}}1 {Á}{{Á}}1 {É}{{É}}1 {Í}{{Í}}1 {Ó}{{Ó}}1 {Ú}{{Ú}}1 {ñ}{{ñ}}1 {Ñ}{{Ñ}}1
 }
 
 
