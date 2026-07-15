@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1400" viewBox="0 0 2200 1400">
+  <rect width="2200" height="1400" fill="#f8f5ef"/>
+  <rect x="40" y="40" width="2120" height="1320" rx="26" fill="#ffffff" stroke="#d6d2c9" stroke-width="2"/>
+  <text x="70" y="88" font-family="DejaVu Sans, Arial, sans-serif" font-size="42" font-weight="700" fill="#2d3038">Diagrama de Gantt de la evolución real del proyecto</text>
+  <text x="70" y="132" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" fill="#6e7480">Cronograma resumido de hitos funcionales, validación y cierre documental del TFG</text>
+
+  <g font-family="DejaVu Sans, Arial, sans-serif" fill="#2d3038">
+    <rect x="420" y="102" width="425" height="48" fill="#efebe4" stroke="#d6d2c9"/>
+    <rect x="845" y="102" width="425" height="48" fill="#efebe4" stroke="#d6d2c9"/>
+    <rect x="1270" y="102" width="425" height="48" fill="#efebe4" stroke="#d6d2c9"/>
+    <rect x="1695" y="102" width="425" height="48" fill="#efebe4" stroke="#d6d2c9"/>
+    <text x="615" y="132" text-anchor="middle" font-size="24" font-weight="700">Abr 2026</text>
+    <text x="1040" y="132" text-anchor="middle" font-size="24" font-weight="700">May 2026</text>
+    <text x="1465" y="132" text-anchor="middle" font-size="24" font-weight="700">Jun 2026</text>
+    <text x="1890" y="132" text-anchor="middle" font-size="24" font-weight="700">Jul 2026</text>
+  </g>
+
+  <g stroke="#e8e5df" stroke-width="1">
+    <line x1="420" y1="150" x2="420" y2="1086"/>
+    <line x1="526.25" y1="150" x2="526.25" y2="1086"/>
+    <line x1="632.5" y1="150" x2="632.5" y2="1086"/>
+    <line x1="738.75" y1="150" x2="738.75" y2="1086"/>
+    <line x1="845" y1="150" x2="845" y2="1086"/>
+    <line x1="951.25" y1="150" x2="951.25" y2="1086"/>
+    <line x1="1057.5" y1="150" x2="1057.5" y2="1086"/>
+    <line x1="1163.75" y1="150" x2="1163.75" y2="1086"/>
+    <line x1="1270" y1="150" x2="1270" y2="1086"/>
+    <line x1="1376.25" y1="150" x2="1376.25" y2="1086"/>
+    <line x1="1482.5" y1="150" x2="1482.5" y2="1086"/>
+    <line x1="1588.75" y1="150" x2="1588.75" y2="1086"/>
+    <line x1="1695" y1="150" x2="1695" y2="1086"/>
+    <line x1="1801.25" y1="150" x2="1801.25" y2="1086"/>
+    <line x1="1907.5" y1="150" x2="1907.5" y2="1086"/>
+    <line x1="2013.75" y1="150" x2="2013.75" y2="1086"/>
+    <line x1="2120" y1="150" x2="2120" y2="1086"/>
+  </g>
+  <g stroke="#d6d2c9" stroke-width="2">
+    <line x1="420" y1="150" x2="420" y2="1086"/>
+    <line x1="845" y1="150" x2="845" y2="1086"/>
+    <line x1="1270" y1="150" x2="1270" y2="1086"/>
+    <line x1="1695" y1="150" x2="1695" y2="1086"/>
+    <line x1="2120" y1="150" x2="2120" y2="1086"/>
+  </g>
+
+  <g font-family="DejaVu Sans, Arial, sans-serif" font-size="22" fill="#2d3038">
+    <text x="70" y="194">Análisis inicial y alcance</text>
+    <text x="70" y="266">Prototipo funcional y flujo base</text>
+    <text x="70" y="338">Modo Práctica y análisis histórico</text>
+    <text x="70" y="410">Modo Carrera</text>
+    <text x="70" y="482">Autenticación y persistencia</text>
+    <text x="70" y="554">Readiness quiz</text>
+    <text x="70" y="626">Modo Horizonte</text>
+    <text x="70" y="698">Tutor IA</text>
+    <text x="70" y="770">Rediseño frontend por fases</text>
+    <text x="70" y="842">Validación en Render</text>
+    <text x="70" y="914">Pruebas y CI/CD</text>
+    <text x="70" y="986">Revisión memoria y refuerzo técnico</text>
+    <text x="70" y="1058">Preparación de defensa</text>
+  </g>
+
+  <g>
+    <rect x="420" y="166" width="255" height="40" rx="14" fill="#37618d"/>
+    <rect x="505" y="238" width="467.5" height="40" rx="14" fill="#37618d"/>
+    <rect x="590" y="310" width="552.5" height="40" rx="14" fill="#b3664e"/>
+    <rect x="760" y="382" width="680" height="40" rx="14" fill="#b3664e"/>
+    <rect x="717.5" y="454" width="340" height="40" rx="14" fill="#6f916f"/>
+    <rect x="1057.5" y="526" width="212.5" height="40" rx="14" fill="#6f916f"/>
+    <rect x="1227.5" y="598" width="148.75" height="40" rx="14" fill="#7c69ab"/>
+    <rect x="1270" y="670" width="85" height="40" rx="14" fill="#7c69ab"/>
+    <rect x="887.5" y="742" width="765" height="40" rx="14" fill="#37618d"/>
+    <rect x="462.5" y="814" width="1232.5" height="40" rx="14" fill="#6f916f"/>
+    <rect x="1227.5" y="886" width="467.5" height="40" rx="14" fill="#b3664e"/>
+    <rect x="1355" y="958" width="403.75" height="40" rx="14" fill="#7c69ab"/>
+    <rect x="1482.5" y="1030" width="340" height="40" rx="14" fill="#7c69ab"/>
+  </g>
+
+  <g stroke="#eeeadf" stroke-width="1">
+    <line x1="60" y1="222" x2="2140" y2="222"/>
+    <line x1="60" y1="294" x2="2140" y2="294"/>
+    <line x1="60" y1="366" x2="2140" y2="366"/>
+    <line x1="60" y1="438" x2="2140" y2="438"/>
+    <line x1="60" y1="510" x2="2140" y2="510"/>
+    <line x1="60" y1="582" x2="2140" y2="582"/>
+    <line x1="60" y1="654" x2="2140" y2="654"/>
+    <line x1="60" y1="726" x2="2140" y2="726"/>
+    <line x1="60" y1="798" x2="2140" y2="798"/>
+    <line x1="60" y1="870" x2="2140" y2="870"/>
+    <line x1="60" y1="942" x2="2140" y2="942"/>
+    <line x1="60" y1="1014" x2="2140" y2="1014"/>
+    <line x1="60" y1="1086" x2="2140" y2="1086"/>
+  </g>
+
+  <g font-family="DejaVu Sans, Arial, sans-serif" font-size="18" fill="#2d3038">
+    <rect x="70" y="1125" width="36" height="22" rx="6" fill="#37618d"/><text x="118" y="1142">Construcción funcional</text>
+    <rect x="360" y="1125" width="36" height="22" rx="6" fill="#b3664e"/><text x="408" y="1142">Simulación y módulos</text>
+    <rect x="650" y="1125" width="36" height="22" rx="6" fill="#6f916f"/><text x="698" y="1142">Persistencia y validación</text>
+    <rect x="1005" y="1125" width="36" height="22" rx="6" fill="#7c69ab"/><text x="1053" y="1142">Extensiones finales y defensa</text>
+  </g>
+</svg>

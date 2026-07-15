@@ -101,7 +101,6 @@ Durante la fase final del proyecto se emplearon herramientas de apoyo al flujo d
 
 Desde el punto de vista metodológico, este enfoque permitió acelerar tareas repetitivas y mantener trazabilidad sobre ramas, commits y validaciones, sin sustituir en ningún caso la toma de decisiones, la responsabilidad técnica ni la autoría académica del desarrollo.
 
-
 Con el fin de documentar este aspecto con mayor precisión, se realizó una auditoría del historial Git visible del repositorio principal en el tramo comprendido desde abril de 2026. El resultado mostró \textbf{134 commits} en total durante ese periodo, de los cuales \textbf{131} aparecen firmados por \texttt{OpenClaw Assistant} y \textbf{3} por \texttt{monkeydbot3-del}. Este dato no debe interpretarse como sustitución automática de la autoría intelectual del proyecto, sino como evidencia de un uso intensivo de herramientas asistidas durante la fase de implementación, refactorización controlada, rediseño visual, documentación y validación.
 
 La trazabilidad por ramas y por tipos de trabajo permite distinguir varios bloques metodológicos:
@@ -120,9 +119,9 @@ También conviene delimitar qué puede y qué no puede inferirse del historial v
 
 \section{Planificación temporal y evolución real del proyecto}
 
-Aunque el proyecto partió de una planificación inicial clásica, su evolución efectiva se organizó en hitos funcionales y de estabilización más próximos a un desarrollo iterativo. La Tabla~\ref{tab:hitos_proyecto_final} resume los hitos principales hasta el cierre.
+Aunque el proyecto partió de una planificación inicial clásica, su evolución efectiva se organizó en hitos funcionales y de estabilización más próximos a un desarrollo iterativo. La Tabla~\ref{tab:hitos_proyecto_final} resume los hitos principales hasta el cierre y la Figura~\ref{fig:gantt-planificacion-tfg} ofrece una vista temporal más visual de esa evolución.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|p{0.22\textwidth}|p{0.42\textwidth}|p{0.22\textwidth}|}
@@ -132,14 +131,29 @@ Modos base del sistema & Construcción del núcleo inicial de análisis y simula
 Autenticación y persistencia & Incorporación de login por correo, modo invitado e historial persistente & Diferenciación real entre perfiles de usuario \\ \hline
 Readiness y modo carrera & Integración del cuestionario de preparación y persistencia progresiva de sesiones & Flujo pedagógico y continuidad de juego \\ \hline
 Modo Horizonte & Incorporación del módulo experimental no predictivo & Extensión educativa del ecosistema de simulación \\ \hline
+Tutor IA & Integración opcional de análisis pedagógico sobre el informe final & Interpretación educativa adicional de la simulación \\ \hline
 Rediseño frontend por fases & Ejecución de siete fases de rediseño visual y revisión global final & Interfaz coherente y más madura \\ \hline
 Validación en Render & Revisión del comportamiento real en entorno desplegado & Corrección de problemas visuales y funcionales reales \\ \hline
-Consolidación en main & Integración de la versión validada y creación de tag final & Cierre estable del frontend en rama principal \\ \hline
-Hotfix final auth/navbar & Corrección del renderizado de estado autenticado en navegación interna & Coherencia final entre sesión real y UI \\ \hline
+Pruebas y CI/CD & Reparación del workflow y consolidación de batería automatizada & Cierre con validación repetible y 29 pruebas superadas \\ \hline
+Revisión de memoria y refuerzo técnico & Auditoría memoria-código y respuesta a observaciones de tutor y tribunal & Memoria más alineada con el sistema real \\ \hline
+Preparación de defensa & Estudio técnico, materiales y respuestas ante tribunal & Mejora de la defendibilidad académica \\ \hline
 \end{tabular}
 \caption{Hitos principales de la evolución real del proyecto hasta su cierre.}
 \label{tab:hitos_proyecto_final}
 \end{table}
+
+\subsection{Diagrama temporal tipo Gantt}
+
+El seguimiento real del proyecto no respondió a una planificación secuencial rígida, sino a bloques parcialmente solapados de construcción funcional, persistencia, rediseño, validación y documentación. Aun así, para facilitar la lectura temporal global se ha sintetizado la evolución efectiva en el diagrama de la Figura~\ref{fig:gantt-planificacion-tfg}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figs/gantt_planificacion_tfg.svg}
+    \caption{Diagrama de Gantt resumido de la evolución real del TFG, desde el análisis inicial hasta la preparación de defensa.}
+    \label{fig:gantt-planificacion-tfg}
+\end{figure}
+
+El diagrama no pretende fijar una granularidad diaria exacta, sino mostrar cómo se encadenaron y solaparon las fases principales: construcción del núcleo funcional, maduración del modo carrera, integración de autenticación y persistencia, incorporación de readiness, horizonte y Tutor IA, rediseño frontend por fases, validación técnica y revisión documental final.
 
 \subsection{Rediseño frontend por fases}
 
@@ -169,6 +183,37 @@ El proyecto resultó técnicamente viable gracias a la madurez del ecosistema Py
 
 Desde el punto de vista económico, el uso de herramientas de código abierto y de planes gratuitos redujo el coste directo de infraestructura. No obstante, la experiencia final también puso de manifiesto la fragilidad de este tipo de servicios cuando expiran recursos asociados, como ocurrió con una base de datos anterior de Render. Por ello, el modelo seguido es viable para un TFG, aunque no necesariamente óptimo como solución estable a largo plazo.
 
+\subsubsection{Estimación de costes}
+
+Aunque el proyecto no se planteó como un producto comercial con presupuesto formal cerrado, sí resulta pertinente estimar sus costes para responder a la viabilidad económica exigida por el tutor. Conviene distinguir entre el coste real durante el TFG y el coste probable de mantener una versión estable en producción.
+
+Durante el desarrollo académico, gran parte de las herramientas utilizadas fueron de código abierto o se apoyaron en planes gratuitos. En consecuencia, el coste monetario directo fue bajo. Sin embargo, eso no significa que el proyecto carezca de coste: existe un coste de tiempo, validación, mantenimiento y dependencia de servicios externos que debe explicitarse. También debe tenerse en cuenta que algunos componentes, como el Tutor IA, solo funcionan cuando existe una clave externa y pueden introducir un coste variable por uso si se activan fuera del contexto meramente experimental.
+
+La Tabla~\ref{tab:estimacion-costes-tfg} resume una estimación prudente de costes. Cuando no se dispone en esta memoria de una verificación exacta y actualizada de tarifas, se indica expresamente que dependen del plan contratado o del proveedor externo, evitando fijar cifras falsas.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|p{0.18\textwidth}|p{0.20\textwidth}|p{0.18\textwidth}|p{0.18\textwidth}|p{0.20\textwidth}|}
+\hline
+\textbf{Concepto} & \textbf{Solución usada} & \textbf{Coste durante el TFG} & \textbf{Coste si se mantuviera en producción} & \textbf{Comentario} \\ \hline
+Entorno de desarrollo & Python, Flask, VS Code, Git, librerías abiertas & 0 € directos & 0 € de licencia directa & Basado en software libre o de uso gratuito. \\ \hline
+Hosting web & Render & 0 € o plan gratuito según disponibilidad \cite{render} & Variable según plan contratado & Adecuado para TFG, pero en producción estable dependería de recursos, disponibilidad y límites del proveedor. \\ \hline
+Base de datos & PostgreSQL en Render & 0 € o coste reducido según plan educativo/gratuito & Variable según plan y tamaño & La versión final exigió persistencia real; un servicio estable puede requerir plan de pago. \\ \hline
+Dominio propio & No utilizado & 0 € & Coste anual variable & La entrega académica no necesitó dominio propio. \\ \hline
+Datos financieros & Yahoo Finance vía yfinance & 0 € directos & 0 € o sustitución por proveedor de pago & Solución suficiente para TFG, pero sin garantías equivalentes a un proveedor profesional. \\ \hline
+Tutor IA opcional & API OpenAI con clave externa opcional & 0 € imputado al TFG si no se factura aparte & Variable según uso y modelo & El coste depende del proveedor, del modelo configurado y del volumen de peticiones. \\ \hline
+Integración continua & GitHub Actions & 0 € dentro del uso habitual del repositorio \cite{github_actions} & Variable si aumentara consumo o repositorios privados & Se utilizó como validación automatizada del proyecto, sin infraestructura propia. \\ \hline
+Tiempo de desarrollo & Trabajo académico del autor & No es factura monetaria, pero sí coste de esfuerzo & Coste laboral variable si se profesionaliza & Debe entenderse como inversión de tiempo de ingeniería, diseño, validación y documentación. \\ \hline
+Mantenimiento evolutivo & Corrección de incidencias, tests, revisión documental & No presupuestado de forma económica formal & Medio y recurrente & En producción estable habría que asumir soporte, revisión de dependencias y cambios del proveedor de datos. \\ \hline
+\end{tabular}
+\caption{Estimación razonada de costes del proyecto durante el TFG y en un escenario de mantenimiento en producción.}
+\label{tab:estimacion-costes-tfg}
+\end{table}
+
+En síntesis, el coste directo real del TFG fue bajo en términos monetarios, pero el coste de sostenimiento de una versión productiva no puede considerarse nulo. Una explotación más estable exigiría, como mínimo, revisar el plan de hosting, la base de datos, la monitorización del proveedor de datos y, en su caso, el consumo de la API de IA opcional.
+
 \subsection{Viabilidad legal y de datos}
 
 La aplicación utiliza bibliotecas y herramientas bajo licencias permisivas y se apoya en datos públicos accesibles mediante Yahoo Finance. Sin embargo, al incorporar autenticación y persistencia de usuarios, la dimensión de protección de datos deja de poder describirse como puramente anónima. Aunque el alcance del TFG no persigue explotación comercial ni tratamiento masivo de datos, el sistema final sí distingue entre identidad autenticada e invitada, lo que obliga a considerar con mayor cuidado la gestión responsable de credenciales, sesiones y datos persistidos.
@@ -177,7 +222,7 @@ La aplicación utiliza bibliotecas y herramientas bajo licencias permisivas y se
 
 Los riesgos identificados durante la evolución real del proyecto fueron los siguientes:
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \begin{tabular}{|p{0.28\textwidth}|p{0.27\textwidth}|p{0.32\textwidth}|}
 \hline

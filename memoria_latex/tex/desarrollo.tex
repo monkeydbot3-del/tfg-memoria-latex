@@ -82,6 +82,15 @@ Este mecanismo evita dejar conexiones abiertas entre peticiones y mantiene el ci
 
 \subsection{Renderizado servidor, Jinja2 y JavaScript cliente}
 
+La Figura~\ref{fig:home-final} muestra la pantalla principal de la aplicación tras el cierre del rediseño. Esta captura es relevante porque condensa la orientación final del producto: una herramienta educativa de simulación, no una interfaz de bróker ni una página meramente expositiva. Desde la propia portada se articula el acceso a los módulos principales y se hace visible la intención de combinar entrada pedagógica, exploración y simulación.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.86\textwidth]{figs/home_final.png}
+    \caption{Pantalla principal del sistema tras el rediseño frontend consolidado.}
+    \label{fig:home-final}
+\end{figure}
+
 La interfaz no está construida como SPA completa. El sistema combina dos patrones:
 
 \begin{itemize}
@@ -112,7 +121,7 @@ La aplicación define seis modelos principales con Peewee. Son precisamente los 
 
 La Figura~\ref{fig:er-postgresql-peewee} resume la estructura relacional persistida en PostgreSQL para usuarios autenticados. No pretende representar el store operativo temporal del modo carrera, sino la capa persistente real que el backend crea mediante Peewee.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figs/er_postgresql_peewee.png}
     \caption{Diagrama entidad-relación del modelo de persistencia implementado con Peewee y PostgreSQL.}
@@ -258,6 +267,8 @@ No se emplea \texttt{Flask-Login}. El usuario actual se resuelve manualmente med
 
 \subsection{Sesión Flask frente a persistencia en base de datos}
 
+La pantalla de acceso mostrada en la Figura~\ref{fig:login_final} permite observar cómo la autenticación se integró en el producto final como puerta de entrada real y no solo como añadido superficial. En ella se materializa una de las ampliaciones funcionales más importantes del proyecto: el paso de un prototipo anónimo a una aplicación con diferenciación entre usuario autenticado e invitado.
+
 Es importante no confundir ambos niveles:
 
 \begin{itemize}
@@ -294,6 +305,15 @@ Uno de los últimos fallos reales detectados consistió en que la navegación se
 La incidencia es relevante porque demuestra una comprensión técnica importante para la defensa: en aplicaciones renderizadas en servidor, un bug de autenticación aparente puede ser en realidad un bug de presentación condicionado por el estado de sesión.
 
 \section{Funcionamiento interno del modo práctica}
+
+La Figura~\ref{fig:practica-final} ilustra el flujo visual final del \textit{Modo Práctica}. Su inclusión en este capítulo responde a una petición expresa del tutor: vincular la explicación técnica con pantallas reales del programa. En este caso, la captura ayuda a entender cómo el formulario de configuración, los supuestos de análisis y la presentación de resultados fueron integrados en una interfaz guiada, sin alterar el backend principal.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figs/practica_final.png}
+    \caption{Pantalla del Modo Práctica o Nuevo análisis tras el rediseño final.}
+    \label{fig:practica-final}
+\end{figure}
 
 \subsection{Entrada, normalización y validación}
 
@@ -382,6 +402,15 @@ Desde el punto de vista técnico y ético, el modo práctica tiene varias limita
 \end{itemize}
 
 \section{Funcionamiento interno del modo carrera}
+
+La Figura~\ref{fig:carrera-setup-final} recoge la pantalla de configuración del \textit{Modo Carrera}. Desde el punto de vista documental, esta captura muestra que la simulación por turnos no es solo una idea abstracta descrita en el texto, sino un módulo materializado con configuración de dificultad, universo, capital y periodo de juego. También ayuda a justificar visualmente la diferenciación del modo carrera frente al análisis puntual del modo práctica.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figs/carrera_setup_final.png}
+    \caption{Pantalla de creación y configuración de sesión del Modo Carrera.}
+    \label{fig:carrera-setup-final}
+\end{figure}
 
 \subsection{Arquitectura general del módulo}
 
@@ -493,7 +522,7 @@ Para usuarios autenticados, las funciones \texttt{save\_career\_session\_for\_us
 
 La Figura~\ref{fig:secuencia-modo-carrera} sintetiza este flujo interno desde la configuración de la sesión hasta el informe final. Se observa que la experiencia visible del usuario depende de varios niveles coordinados: frontend, backend Flask, persistencia con Peewee y acceso a histórico de mercado con yfinance.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figs/secuencia_modo_carrera.png}
     \caption{Secuencia interna del Modo Carrera desde la configuración de la sesión hasta el informe final.}
@@ -503,6 +532,15 @@ La Figura~\ref{fig:secuencia-modo-carrera} sintetiza este flujo interno desde la
 La diferencia entre lógica de simulación y presentación visual también es clara aquí: el backend construye series, métricas y snapshots; el frontend solo decide cómo mostrarlos en plantillas, tablas y gráficos. La fuente documental del diagrama se conserva en \texttt{memoria\_latex/figs/secuencia\_modo\_carrera.mmd}.
 
 \section{Funcionamiento interno del modo horizonte}
+
+La Figura~\ref{fig:horizonte-final} muestra la interfaz final del \textit{Modo Horizonte}. Su papel en la memoria es doble: por un lado, evidencia que se trata de un módulo visible y diferenciado dentro del producto; por otro, permite observar cómo el diseño visual insiste en su carácter experimental y prudente, evitando presentarlo como herramienta predictiva cerrada.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.84\textwidth]{figs/horizonte_final.png}
+    \caption{Pantalla del Modo Horizonte como laboratorio prudente de escenarios futuros.}
+    \label{fig:horizonte-final}
+\end{figure}
 
 \subsection{Objetivo técnico del módulo}
 
@@ -545,6 +583,15 @@ El propio payload final devuelve una nota clara indicando que el resultado corre
 Si el usuario accede desde una sesión de carrera, \texttt{/api/horizon/from-career/<session\_id>} intenta reutilizar la última asignación conocida, pesos y valor final de cartera. Cuando el proveedor falla o la muestra histórica no es suficiente, el módulo responde con mensajes controlados y, si procede, con estado \texttt{503} para reflejar limitación temporal del proveedor.
 
 \section{Tutor IA educativo: arquitectura y flujo real}
+
+Antes de entrar en el detalle del Tutor IA, conviene mostrar la capa pedagógica previa sobre la que se apoya el sistema. La Figura~\ref{fig:aprender-final} recoge la pantalla del módulo \textit{Aprender}, que sirve de base conceptual y de transición hacia el readiness quiz. Esta captura refuerza que el proyecto no se limita a generar números o gráficas, sino que intenta articular una experiencia formativa más amplia.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.84\textwidth]{figs/aprender_final.png}
+    \caption{Módulo Aprender y progresión educativa integrada en la aplicación final.}
+    \label{fig:aprender-final}
+\end{figure}
 
 \subsection{Activación y disponibilidad}
 
@@ -593,6 +640,44 @@ La función \texttt{\_build\_career\_ai\_payload(...)} extrae un resumen acotado
 
 Por el contrario, no se envían credenciales del usuario, hash de contraseña, email, sesión Flask completa ni histórico personal ajeno al informe analizado. El diseño intenta minimizar el volumen de datos compartidos y limitarse al contexto educativo de esa simulación concreta.
 
+\subsection{Origen de los valores analizados por el Tutor IA}
+
+Una de las observaciones del tutor fue que la memoria no explicaba con suficiente claridad de dónde obtenía el Tutor IA los valores que luego comentaba. Este punto es importante porque la capa de IA podría malinterpretarse como si calculase directamente precios, rentabilidades o métricas. En realidad, el flujo implementado en el repositorio es mucho más acotado.
+
+El Tutor IA \textbf{no calcula directamente} precios, rentabilidades, CAGR, drawdown ni benchmark. Todos esos valores se generan previamente en el backend del proyecto a partir de funciones deterministas del modo carrera. La base objetiva es el informe final de la sesión, construido con datos históricos descargados mediante \texttt{yfinance}, con los turnos cerrados realmente jugados por el usuario, con las asignaciones de cartera registradas y con el benchmark calculado por el propio sistema.
+
+En concreto, el informe de carrera reutiliza funciones como \texttt{\_portfolio\_equity\_series(...)}, \texttt{\_compute\_metrics\_from\_base100(...)}, \texttt{\_compute\_benchmark\_package(...)}, \texttt{\_tracking\_summary(...)} y \texttt{\_compute\_score\_payload(...)}. Es decir, la parte numérica y financiera nace del backend, no del modelo de IA. Una vez generado ese informe, la función \texttt{\_build\_career\_ai\_payload(...)} construye un payload resumido con los campos relevantes para la interpretación pedagógica.
+
+Por tanto, el Tutor IA no accede directamente a la base de datos, no consulta Yahoo Finance por su cuenta y no inventa la serie histórica principal. Tampoco reconstruye la simulación desde cero. Su papel es interpretar en lenguaje natural y con tono educativo un conjunto de valores ya calculados por el sistema. Además, el propio prompt le exige que, si faltan datos o si alguna métrica no está disponible, lo indique explícitamente en lugar de rellenar huecos de forma arbitraria.
+
+La Tabla~\ref{tab:origen-valores-tutor-ia} resume el origen de los datos utilizados por el Tutor IA y su papel dentro de la respuesta generada.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|p{0.18\textwidth}|p{0.18\textwidth}|p{0.18\textwidth}|p{0.12\textwidth}|p{0.24\textwidth}|}
+\hline
+\textbf{Valor o dato} & \textbf{Quién lo calcula} & \textbf{Fuente} & \textbf{Se envía al Tutor IA} & \textbf{Uso en la respuesta} \\ \hline
+Valor inicial & Backend del modo carrera & Configuración de sesión & Sí & Contextualizar el punto de partida de la simulación. \\ \hline
+Valor final & Backend del informe final & Turnos cerrados y evolución de cartera & Sí & Resumir el resultado agregado de la sesión. \\ \hline
+PnL absoluto y porcentual & Backend del informe final & Diferencia entre capital, aportaciones y valor final & Sí & Explicar ganancia o pérdida obtenida. \\ \hline
+CAGR & \texttt{\_compute\_metrics\_from\_base100(...)} & Serie histórica del portfolio & Sí & Interpretar crecimiento anualizado. \\ \hline
+Drawdown máximo & \texttt{\_compute\_metrics\_from\_base100(...)} & Serie histórica del portfolio & Sí & Valorar riesgo y caídas sufridas. \\ \hline
+Benchmark & \texttt{\_compute\_benchmark\_package(...)} & Serie histórica de \texttt{\^{}GSPC} u otro índice & Sí & Comparar la cartera con una referencia de mercado. \\ \hline
+Tracking error & \texttt{\_tracking\_summary(...)} & Diferencia cartera-benchmark & Sí & Comentar desviación respecto al índice. \\ \hline
+Score & \texttt{\_compute\_score\_payload(...)} & Métricas agregadas del informe & Sí & Sintetizar el equilibrio entre retorno y riesgo. \\ \hline
+Advertencias & Backend del informe final & Falta de datos, límites de proveedor o incidencias & Sí & Introducir cautelas o matices en la interpretación. \\ \hline
+Tickers y asignación final & Sesión de carrera cerrada & Decisiones del usuario & Sí & Comentar concentración, diversificación o sesgos de cartera. \\ \hline
+Serie histórica completa & Backend del informe final & yfinance + turnos & No de forma íntegra & Se resume; no se envía masivamente al modelo. \\ \hline
+Credenciales, email o sesión Flask & No aplica & Datos internos de usuario & No & Quedan excluidos del análisis IA. \\ \hline
+\end{tabular}
+\caption{Origen y uso de los valores interpretados por el Tutor IA.}
+\label{tab:origen-valores-tutor-ia}
+\end{table}
+
+Esta separación entre cálculo determinista e interpretación lingüística es clave para defender el sistema ante el tribunal. El informe numérico es la fuente objetiva; el Tutor IA es una capa opcional de lectura pedagógica sobre ese informe.
+
 \subsection{Construcción del prompt y restricciones impuestas}
 
 La función \texttt{\_generate\_career\_ai\_analysis(...)} construye dos mensajes:
@@ -624,7 +709,7 @@ En frontend, \texttt{app/static/app.js} usa funciones como \texttt{fetchCareerAi
 
 La Figura~\ref{fig:secuencia-tutor-ia} resume el flujo técnico completo del Tutor IA, incluyendo validación de entorno, preparación del payload, llamada al proveedor y tratamiento controlado de errores o timeouts.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figs/secuencia_tutor_ia.png}
     \caption{Secuencia técnica del Tutor IA opcional aplicado al informe final del Modo Carrera.}

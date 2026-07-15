@@ -107,6 +107,63 @@ Los avisos deprecados observados en dependencias externas no bloquearon la ejecu
     \label{fig:test_output_final}
 \end{figure}
 
+\section{Comparación del Tutor IA con métodos no asistidos por IA}
+
+Otra de las observaciones recibidas durante la revisión fue la conveniencia de comparar lo que aporta el Tutor IA con otros métodos de interpretación del resultado. Esta comparación es importante porque ayuda a delimitar qué parte del sistema es objetiva, qué parte es heurística y qué parte es interpretación lingüística generada por un modelo.
+
+La primera referencia de comparación es el \textbf{informe determinista del sistema}. Ese informe se construye con cálculo programado y reproduce magnitudes como rentabilidad total, benchmark, score, drawdown o tracking error. Se trata de la capa más objetiva del sistema, porque deriva de funciones explícitas del backend y de datos históricos ya descargados.
+
+La segunda referencia es un conjunto de \textbf{reglas heurísticas simples}. Aunque el proyecto no implementa un motor experto formal separado para el Tutor IA, sí es posible contrastar su salida con interpretaciones esperables a partir de reglas básicas, por ejemplo: drawdown alto implica advertencia de riesgo, bajo rendimiento frente al benchmark implica advertencia de underperformance, concentración elevada sugiere falta de diversificación y score bajo debería traducirse en recomendaciones de mejora prudente.
+
+La tercera referencia es el propio \textbf{benchmark}, ya que buena parte de la lectura educativa del informe depende de comparar la cartera del usuario con un índice amplio de mercado. En este sentido, la IA no inventa la comparación, sino que verbaliza una relación ya calculada por el backend.
+
+La cuarta referencia es la \textbf{interpretación humana o manual}. Un usuario que lea las métricas del informe puede extraer conclusiones por sí mismo, aunque no siempre con la misma claridad pedagógica. El valor del Tutor IA consiste precisamente en traducir esa lectura a un lenguaje más accesible, sin sustituir la base numérica previa.
+
+La Tabla~\ref{tab:comparativa-metodos-tutor-ia} resume estas diferencias.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|p{0.18\textwidth}|p{0.18\textwidth}|p{0.18\textwidth}|p{0.18\textwidth}|p{0.18\textwidth}|}
+\hline
+\textbf{Método} & \textbf{Entrada} & \textbf{Salida} & \textbf{Ventajas} & \textbf{Inconvenientes / papel en el proyecto} \\ \hline
+Informe determinista del sistema & Turnos, precios históricos, benchmark, métricas & Valores numéricos y payload de informe & Objetivo, repetible y trazable & No explica por sí mismo el resultado; es la base factual del sistema. \\ \hline
+Reglas heurísticas simples & Métricas clave y umbrales interpretativos & Alertas o lecturas breves de riesgo y desempeño & Claras, fáciles de justificar y consistentes & Menos expresivas; no generan explicación rica. Sirven como contraste conceptual. \\ \hline
+Benchmark de referencia & Serie del índice y serie de cartera & Comparación relativa de rendimiento y riesgo & Sitúa la cartera frente al mercado & No basta por sí solo para explicar decisiones. Funciona como referencia objetiva. \\ \hline
+Interpretación humana manual & Informe visual, gráficas y métricas & Conclusión elaborada por el usuario o evaluador & Flexible y contextual & Depende del nivel del lector; puede ser menos homogénea. \\ \hline
+Tutor IA opcional & Payload resumido del informe final & Explicación pedagógica estructurada en lenguaje natural & Hace más accesible la lectura del informe y resume fortalezas, riesgos y mejoras & Puede simplificar o matizar de forma imperfecta; no sustituye cálculos ni validación humana. \\ \hline
+\end{tabular}
+\caption{Comparación entre el Tutor IA y otros métodos no asistidos por IA para interpretar el resultado final.}
+\label{tab:comparativa-metodos-tutor-ia}
+\end{table}
+
+Este contraste permite extraer una conclusión importante: el Tutor IA no sustituye al informe determinista, sino que depende de él. Su función es añadir una interpretación pedagógica en lenguaje natural, no recalcular la simulación ni producir una verdad alternativa sobre el resultado.
+
+\subsection{Contraste cualitativo entre métricas, reglas e interpretación del Tutor IA}
+
+Para hacer más explícita esa comparación, la Tabla~\ref{tab:metricas-reglas-tutor-ia} resume cómo puede evaluarse cualitativamente si la respuesta del Tutor IA respeta la información objetiva del informe.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|p{0.18\textwidth}|p{0.24\textwidth}|p{0.24\textwidth}|p{0.22\textwidth}|}
+\hline
+\textbf{Métrica determinista} & \textbf{Interpretación esperada por reglas} & \textbf{Tipo de interpretación del Tutor IA} & \textbf{Riesgo controlado} \\ \hline
+Drawdown alto & Advertencia de volatilidad o caídas pronunciadas & Comentario sobre riesgo y gestión de pérdidas & Evitar que la IA describa el resultado como sólido si las caídas fueron severas. \\ \hline
+Underperformance frente al benchmark & Advertencia de rendimiento relativo débil & Explicación de que la cartera quedó por detrás del mercado & Evitar contradicción con la comparación objetiva cartera-índice. \\ \hline
+Score bajo & Recomendación educativa de mejora & Sugerencias prudentes sobre diversificación, disciplina o control de riesgo & Evitar que la IA convierta un mal score en una valoración demasiado optimista. \\ \hline
+Tracking error alto & Advertencia sobre alejamiento del benchmark & Comentario sobre mayor desviación respecto al índice & Evitar presentar la cartera como equivalente al benchmark cuando no lo es. \\ \hline
+Asignación muy concentrada & Señal de riesgo de diversificación insuficiente & Observación sobre concentración en pocos activos & Evitar pasar por alto un sesgo visible en la cartera final. \\ \hline
+Advertencias de datos o proveedor & Necesidad de prudencia interpretativa & Mención de límites o ausencia parcial de datos si procede & Evitar que la IA rellene huecos cuando el backend ya marcó limitaciones. \\ \hline
+\end{tabular}
+\caption{Contraste cualitativo entre métricas deterministas, reglas simples e interpretación del Tutor IA.}
+\label{tab:metricas-reglas-tutor-ia}
+\end{table}
+
+La validación realizada sobre esta capa fue principalmente \textbf{cualitativa y manual}. Es decir, se revisó que la respuesta del Tutor IA no contradijera de forma evidente las métricas objetivas del informe y que mantuviera el tono prudente exigido por el prompt. No se realizó una evaluación experimental cuantitativa exhaustiva con métricas estadísticas de calidad del lenguaje, ni existe en la versión final una batería amplia de tests automáticos específicamente dedicada al Tutor IA. Esta limitación debe explicitarse con honestidad: la capa IA está endurecida técnicamente y acotada metodológicamente, pero su validación final sigue descansando en revisión manual razonada.
+
 \section{Integración continua y validación sobre rama principal}
 
 La validación técnica no se limitó a ejecuciones locales. Se reparó y estabilizó la configuración de \textbf{GitHub Actions}, de modo que la rama principal del proyecto quedara asociada a una comprobación automática de calidad. Este mecanismo permitió reforzar la confianza en el estado final de \texttt{main} tras la consolidación del rediseño y los hotfixes posteriores.
