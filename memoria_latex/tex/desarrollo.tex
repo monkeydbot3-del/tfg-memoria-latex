@@ -304,6 +304,25 @@ Uno de los últimos fallos reales detectados consistió en que la navegación se
 
 La incidencia es relevante porque demuestra una comprensión técnica importante para la defensa: en aplicaciones renderizadas en servidor, un bug de autenticación aparente puede ser en realidad un bug de presentación condicionado por el estado de sesión.
 
+\section{Módulo Aprender y readiness quiz}
+
+La aplicación no conduce al usuario directamente desde la pantalla principal al modo de simulación más complejo. Antes de llegar al \textit{Modo Carrera}, existe una capa pedagógica previa formada por el módulo \textit{Aprender} y por el \textit{readiness quiz}, que es el cuestionario utilizado para comprobar si el usuario conoce unos términos mínimos antes de entrar en la simulación por turnos.
+
+Este cuestionario no pretende funcionar como examen académico formal ni como certificación de conocimientos financieros. Su objetivo es mucho más concreto: actuar como una barrera formativa mínima para evitar que el usuario acceda al \textit{Modo Carrera} sin contexto suficiente sobre conceptos básicos de inversión. En ese sentido, cumple una doble función: \textbf{pedagógica}, porque refuerza contenidos introductorios, y \textbf{de desbloqueo progresivo}, porque condiciona el acceso al módulo más exigente del sistema.
+
+Los conceptos evaluados se centran en nociones introductorias necesarias para interpretar correctamente una simulación de inversión, entre ellas riesgo, diversificación, DCA, horizonte temporal, volatilidad, benchmark y lectura básica de resultados. No se trata de una evaluación avanzada de mercados, sino de una comprobación razonable de que el usuario dispone de vocabulario y contexto suficiente para comprender la experiencia posterior.
+
+Desde el punto de vista técnico, el comportamiento del readiness quiz depende del perfil de usuario. Cuando el usuario está autenticado, el resultado puede persistirse de forma robusta mediante el modelo \texttt{ReadinessQuizResult}, lo que permite conservar el estado de aprobado entre sesiones. En cambio, para usuario invitado el estado vive en la sesión Flask actual, de forma coherente con el resto de restricciones de persistencia del modo invitado.
+
+La Figura~\ref{fig:aprender-final} resume visualmente esta capa de aprendizaje previo y progresión. Su presencia en el producto es importante porque responde directamente a la pregunta de si se incorporó o no un cuestionario para comprobar conocimientos antes de invertir dentro del sistema: sí se incorporó, y además quedó integrado como mecanismo real de acceso escalonado al \textit{Modo Carrera}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.84\textwidth]{figs/aprender_final.png}
+    \caption{Módulo Aprender y progresión educativa integrada en la aplicación final.}
+    \label{fig:aprender-final}
+\end{figure}
+
 \section{Funcionamiento interno del modo práctica}
 
 La Figura~\ref{fig:practica-final} ilustra el flujo visual final del \textit{Modo Práctica}. Su inclusión en este capítulo responde a una petición expresa del tutor: vincular la explicación técnica con pantallas reales del programa. En este caso, la captura ayuda a entender cómo el formulario de configuración, los supuestos de análisis y la presentación de resultados fueron integrados en una interfaz guiada, sin alterar el backend principal.
@@ -531,9 +550,9 @@ La Figura~\ref{fig:secuencia-modo-carrera} sintetiza este flujo interno desde la
 
 La diferencia entre lógica de simulación y presentación visual también es clara aquí: el backend construye series, métricas y snapshots; el frontend solo decide cómo mostrarlos en plantillas, tablas y gráficos. La fuente documental del diagrama se conserva en \texttt{memoria\_latex/figs/secuencia\_modo\_carrera.mmd}.
 
-\section{Funcionamiento interno del modo horizonte}
+\section{Funcionamiento interno del Modo Horizonte o modo a futuro}
 
-La Figura~\ref{fig:horizonte-final} muestra la interfaz final del \textit{Modo Horizonte}. Su papel en la memoria es doble: por un lado, evidencia que se trata de un módulo visible y diferenciado dentro del producto; por otro, permite observar cómo el diseño visual insiste en su carácter experimental y prudente, evitando presentarlo como herramienta predictiva cerrada.
+La Figura~\ref{fig:horizonte-final} muestra la interfaz final del \textit{Modo Horizonte}. Este es el módulo al que, de forma más informal, puede referirse el tutor como \textbf{modo a futuro}. Conviene aclarar que no se trata de un predictor del mercado ni de un motor de previsión financiera formal, sino de un módulo experimental que genera una trayectoria futura hipotética a partir de patrones históricos remezclados. Su papel en la memoria es doble: por un lado, evidencia que se trata de un módulo visible y diferenciado dentro del producto; por otro, permite observar cómo el diseño visual insiste en su carácter experimental y prudente, evitando presentarlo como herramienta predictiva cerrada.
 
 \begin{figure}[htbp]
     \centering
@@ -583,15 +602,6 @@ El propio payload final devuelve una nota clara indicando que el resultado corre
 Si el usuario accede desde una sesión de carrera, \texttt{/api/horizon/from-career/<session\_id>} intenta reutilizar la última asignación conocida, pesos y valor final de cartera. Cuando el proveedor falla o la muestra histórica no es suficiente, el módulo responde con mensajes controlados y, si procede, con estado \texttt{503} para reflejar limitación temporal del proveedor.
 
 \section{Tutor IA educativo: arquitectura y flujo real}
-
-Antes de entrar en el detalle del Tutor IA, conviene mostrar la capa pedagógica previa sobre la que se apoya el sistema. La Figura~\ref{fig:aprender-final} recoge la pantalla del módulo \textit{Aprender}, que sirve de base conceptual y de transición hacia el readiness quiz. Esta captura refuerza que el proyecto no se limita a generar números o gráficas, sino que intenta articular una experiencia formativa más amplia.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.84\textwidth]{figs/aprender_final.png}
-    \caption{Módulo Aprender y progresión educativa integrada en la aplicación final.}
-    \label{fig:aprender-final}
-\end{figure}
 
 \subsection{Activación y disponibilidad}
 
